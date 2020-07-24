@@ -1,0 +1,24 @@
+{
+  "name": "Sudoku-Solver",
+  "version": "1.0.0",
+  "description": "A sudoku solver",
+  "main": "sudoku_table.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hashiyaa/Sudoku-Solver.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Hashiyaa/Sudoku-Solver/issues"
+  },
+  "homepage": "https://github.com/Hashiyaa/Sudoku-Solver#readme",
+  "dependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-react-app": "^3.1.2"
+  }
+}
