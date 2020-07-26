@@ -51,7 +51,7 @@ class Game extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            config: Array(9).fill("").map(row => new Array(9).fill(0))
+            config: Array(9).fill(0).map(row => new Array(9).fill(0))
         };
     }
   
@@ -99,7 +99,7 @@ class Game extends React.Component {
                     </ol>
                     <div>
                         <button onClick={() => {
-                            console.log(this.state.config);
+                            // console.log(this.state.config);
                             calculate(this.state.config);
                         }}>
                             Solve
@@ -114,7 +114,3 @@ class Game extends React.Component {
 // ========================================
 
 ReactDOM.render(<Game />, document.getElementById('root'));
-
-function calculate(config) {
-    
-}

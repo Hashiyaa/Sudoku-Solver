@@ -92,7 +92,7 @@ var Game = function (_React$Component2) {
         var _this3 = _possibleConstructorReturn(this, (Game.__proto__ || Object.getPrototypeOf(Game)).call(this, props));
 
         _this3.state = {
-            config: Array(9).fill("").map(function (row) {
+            config: Array(9).fill(0).map(function (row) {
                 return new Array(9).fill(0);
             })
         };
@@ -171,7 +171,7 @@ var Game = function (_React$Component2) {
                         React.createElement(
                             "button",
                             { onClick: function onClick() {
-                                    console.log(_this4.state.config);
+                                    // console.log(this.state.config);
                                     calculate(_this4.state.config);
                                 } },
                             "Solve"
@@ -188,5 +188,3 @@ var Game = function (_React$Component2) {
 // ========================================
 
 ReactDOM.render(React.createElement(Game, null), document.getElementById('root'));
-
-function calculate(config) {}
