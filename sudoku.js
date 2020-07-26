@@ -1,5 +1,3 @@
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -7,14 +5,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-function Square(props) {
-    return React.createElement(
-        "button",
-        { className: "square", onClick: props.onClick },
-        props.value
-    );
-}
 
 var Board = function (_React$Component) {
     _inherits(Board, _React$Component);
@@ -26,22 +16,17 @@ var Board = function (_React$Component) {
     }
 
     _createClass(Board, [{
-        key: "renderSquare",
-        value: function renderSquare(i) {
+        key: "renderTable",
+
+        // constructor(props) {
+        //     super(props);
+        // }
+
+        value: function renderTable() {
             var _this2 = this;
 
-            return React.createElement(Square, {
-                value: this.props.squares[i],
-                onClick: function onClick() {
-                    return _this2.props.onClick(i);
-                }
-            });
-        }
-    }, {
-        key: "renderTable",
-        value: function renderTable() {
             var numbers = Array(9).fill(0).map(function (e, i) {
-                return i + 1;
+                return i;
             });
             var w1 = "1px",
                 w2 = "3px",
@@ -51,7 +36,27 @@ var Board = function (_React$Component) {
                     "tr",
                     { key: row },
                     numbers.map(function (col) {
-                        return React.createElement("td", { key: col });
+                        var borderArr = [w1, w1, w1, w1]; // top, right, bottom, left
+                        if (row === 0) borderArr[0] = w3;
+                        if (row === 3 || row === 6) borderArr[0] = w2;
+                        if (row === 8) borderArr[2] = w3;
+                        if (col === 0) borderArr[3] = w3;
+                        if (col === 3 || col === 6) borderArr[3] = w2;
+                        if (col === 8) borderArr[1] = w3;
+                        return React.createElement(
+                            "td",
+                            { key: col, style: { borderWidth: borderArr.join(" ") } },
+                            React.createElement("input", { className: "square", type: "number", min: "1", max: "9",
+                                onChange: function onChange(event) {
+                                    return _this2.props.onChange(row, col, Number(event.target.value));
+                                },
+                                onFocus: function onFocus() {
+                                    return event.target.type = "number";
+                                },
+                                onBlur: function onBlur() {
+                                    return event.target.type = "text";
+                                } })
+                        );
                     })
                 );
             });
@@ -87,39 +92,25 @@ var Game = function (_React$Component2) {
         var _this3 = _possibleConstructorReturn(this, (Game.__proto__ || Object.getPrototypeOf(Game)).call(this, props));
 
         _this3.state = {
-            history: [{
-                squares: Array(9).fill(null)
-            }],
-            stepNumber: 0,
-            xIsNext: true
+            config: Array(9).fill("").map(function (row) {
+                return new Array(9).fill(0);
+            })
         };
         return _this3;
     }
 
     _createClass(Game, [{
-        key: "handleClick",
-        value: function handleClick(i) {
-            var history = this.state.history.slice(0, this.state.stepNumber + 1);
-            var current = history[history.length - 1];
-            var squares = current.squares.slice();
-            if (calculateWinner(squares) || squares[i]) {
-                return;
-            }
-            squares[i] = this.state.xIsNext ? 'X' : 'O';
+        key: "handleChange",
+        value: function handleChange(i, j, number) {
+            // const history = this.state.history.slice(0, this.state.stepNumber + 1);
+            // const current = history[history.length - 1];
+            var config = this.state.config.slice();
+            // if (calculateWinner(squares) || squares[i]) {
+            //     return;
+            // }
+            config[i][j] = number;
             this.setState({
-                history: history.concat([{
-                    squares: squares
-                }]),
-                stepNumber: history.length,
-                xIsNext: !this.state.xIsNext
-            });
-        }
-    }, {
-        key: "jumpTo",
-        value: function jumpTo(step) {
-            this.setState({
-                stepNumber: step,
-                xIsNext: step % 2 === 0
+                config: config
             });
         }
     }, {
@@ -127,56 +118,64 @@ var Game = function (_React$Component2) {
         value: function render() {
             var _this4 = this;
 
-            var history = this.state.history;
-            var current = history[this.state.stepNumber];
-            var winner = calculateWinner(current.squares);
+            // const moves = [1].map((step, move) => {
+            //     const desc = move ?
+            //         'Go to move #' + move :
+            //         'Go to game start';
+            //     return (
+            //         <li key={move}>
+            //             <button onClick={() => this.jumpTo(move)}>{desc}</button>
+            //         </li>
+            //     );
+            // });
 
-            var moves = history.map(function (step, move) {
-                var desc = move ? 'Go to move #' + move : 'Go to game start';
-                return React.createElement(
-                    "li",
-                    { key: move },
-                    React.createElement(
-                        "button",
-                        { onClick: function onClick() {
-                                return _this4.jumpTo(move);
-                            } },
-                        desc
-                    )
-                );
-            });
-
-            var status = void 0;
-            if (winner) {
-                status = 'Winner: ' + winner;
-            } else {
-                status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
-            }
             return React.createElement(
                 "div",
                 { className: "game" },
                 React.createElement(
                     "div",
                     { className: "game-board" },
-                    React.createElement(Board, {
-                        squares: current.squares,
-                        onClick: function onClick(i) {
-                            return _this4.handleClick(i);
-                        }
+                    React.createElement(Board
+                    // config={this.state.config}
+                    , { onChange: this.handleChange.bind(this)
                     })
                 ),
                 React.createElement(
                     "div",
                     { className: "game-info" },
                     React.createElement(
-                        "div",
-                        null,
-                        status
-                    ),
-                    React.createElement(
                         "ol",
                         null,
-                        moves
+                        React.createElement(
+                            "li",
+                            { key: "enter" },
+                            React.createElement(
+                                "p",
+                                null,
+                                "Enter the puzzle in the grid above."
+                            )
+                        ),
+                        React.createElement(
+                            "li",
+                            { key: "solve" },
+                            React.createElement(
+                                "p",
+                                null,
+                                "Click \"Solve\" to get the answer."
+                            )
+                        )
+                    ),
+                    React.createElement(
+                        "div",
+                        null,
+                        React.createElement(
+                            "button",
+                            { onClick: function onClick() {
+                                    console.log(_this4.state.config);
+                                    calculate(_this4.state.config);
+                                } },
+                            "Solve"
+                        )
                     )
                 )
             );
@@ -190,17 +189,4 @@ var Game = function (_React$Component2) {
 
 ReactDOM.render(React.createElement(Game, null), document.getElementById('root'));
 
-function calculateWinner(squares) {
-    var lines = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
-    for (var i = 0; i < lines.length; i++) {
-        var _lines$i = _slicedToArray(lines[i], 3),
-            a = _lines$i[0],
-            b = _lines$i[1],
-            c = _lines$i[2];
-
-        if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-            return squares[a];
-        }
-    }
-    return null;
-}
+function calculate(config) {}

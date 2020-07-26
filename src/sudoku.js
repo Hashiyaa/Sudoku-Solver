@@ -1,28 +1,30 @@
-function Square(props) {
-    return (
-        <button className="square" onClick={props.onClick}>
-            {props.value}
-        </button>
-    );
-}
-
 class Board extends React.Component {
-    renderSquare(i) {
-        return (<Square 
-            value={this.props.squares[i]} 
-            onClick={() => this.props.onClick(i)}
-        />);
-    }
+    // constructor(props) {
+    //     super(props);
+    // }
 
     renderTable() {
-        const numbers = Array(9).fill(0).map((e, i) => i + 1);
+        const numbers = Array(9).fill(0).map((e, i) => i);
         const w1 = "1px", w2 = "3px", w3 = "5px";
         return numbers.map((row) => {
             return (
                 <tr key={row}>
                 {
                     numbers.map((col) => {
-                        return <td key={col}></td>
+                        let borderArr = [w1, w1, w1, w1]; // top, right, bottom, left
+                        if (row === 0) borderArr[0] = w3;
+                        if (row === 3 || row === 6) borderArr[0] = w2;
+                        if (row === 8) borderArr[2] = w3;
+                        if (col === 0) borderArr[3] = w3;
+                        if (col === 3 || col === 6) borderArr[3] = w2;
+                        if (col === 8) borderArr[1] = w3;
+                        return <td key={col} style={{borderWidth: borderArr.join(" ")}}>
+                            <input className="square" type="number" min="1" max="9"
+                                onChange={event => this.props.onChange(row, col, Number(event.target.value))}
+                                onFocus={() => event.target.type = "number"}
+                                onBlur={() => event.target.type = "text"}>
+                            </input> 
+                        </td>
                     })
                 }
                 </tr>
@@ -49,71 +51,60 @@ class Game extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            history: [{
-            squares: Array(9).fill(null),
-        }],
-        stepNumber: 0,
-        xIsNext: true,
-        }
+            config: Array(9).fill("").map(row => new Array(9).fill(0))
+        };
     }
   
-    handleClick(i) {
-        const history = this.state.history.slice(0, this.state.stepNumber + 1);
-        const current = history[history.length - 1];
-        const squares = current.squares.slice();
-        if (calculateWinner(squares) || squares[i]) {
-            return;
-        }
-        squares[i] = this.state.xIsNext ? 'X' : 'O';
+    handleChange(i, j, number) {
+        // const history = this.state.history.slice(0, this.state.stepNumber + 1);
+        // const current = history[history.length - 1];
+        const config = this.state.config.slice();
+        // if (calculateWinner(squares) || squares[i]) {
+        //     return;
+        // }
+        config[i][j] = number;
         this.setState({
-            history: history.concat([{
-                squares: squares,
-            }]),
-            stepNumber: history.length,
-            xIsNext: !this.state.xIsNext,
-        });
-    }
-
-    jumpTo(step) {
-        this.setState({
-            stepNumber: step,
-            xIsNext: (step % 2) === 0,
+            config: config,
         });
     }
   
     render() {
-        const history = this.state.history;
-        const current = history[this.state.stepNumber];
-        const winner = calculateWinner(current.squares);
-        
-        const moves = history.map((step, move) => {
-            const desc = move ?
-                'Go to move #' + move :
-                'Go to game start';
-            return (
-                <li key={move}>
-                    <button onClick={() => this.jumpTo(move)}>{desc}</button>
-                </li>
-            );
-        });
-        
-        let status;
-        if (winner) {
-            status = 'Winner: ' + winner;
-        } else {
-            status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
-        }
+        // const moves = [1].map((step, move) => {
+        //     const desc = move ?
+        //         'Go to move #' + move :
+        //         'Go to game start';
+        //     return (
+        //         <li key={move}>
+        //             <button onClick={() => this.jumpTo(move)}>{desc}</button>
+        //         </li>
+        //     );
+        // });
+
         return (
             <div className="game">
                 <div className="game-board">
                     <Board
-                        squares={current.squares}
-                        onClick={(i) => this.handleClick(i)}
+                        // config={this.state.config}
+                        onChange={this.handleChange.bind(this)}
                     />
                 </div>
                     <div className="game-info">
-                    <div>{status}</div>
-                    <ol>{moves}</ol>
+                    <ol>
+                        <li key="enter">
+                            <p>Enter the puzzle in the grid above.</p>
+                        </li>
+                        <li key="solve">
+                            <p>Click "Solve" to get the answer.</p>
+                        </li>
+                    </ol>
+                    <div>
+                        <button onClick={() => {
+                            console.log(this.state.config);
+                            calculate(this.state.config);
+                        }}>
+                            Solve
+                        </button>
+                    </div>
                 </div>
             </div>
         );
@@ -124,22 +115,6 @@ class Game extends React.Component {
 
 ReactDOM.render(<Game />, document.getElementById('root'));
 
-function calculateWinner(squares) {
-    const lines = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6],
-    ];
-    for (let i = 0; i < lines.length; i++) {
-        const [a, b, c] = lines[i];
-        if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-            return squares[a];
-        }
-    }
-    return null;
+function calculate(config) {
+    
 }
