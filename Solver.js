@@ -1,27 +1,29 @@
 // @ts-check
 
-function calculate(config, dim = 3) {
+let dim = 3;
+
+function calculate(config) {
     config = [
         // A easy one
-        [0, 0, 3, 0, 2, 0, 6, 0, 0],
-        [9, 0, 0, 3, 0, 5, 0, 0, 1],
-        [0, 0, 1, 8, 0, 6, 4, 0, 0],
-        [0, 0, 8, 1, 0, 2, 9, 0, 0],
-        [7, 0, 0, 0, 0, 0, 0, 0, 8],
-        [0, 0, 6, 7, 0, 8, 2, 0, 0],
-        [0, 0, 2, 6, 0, 9, 5, 0, 0],
-        [8, 0, 0, 2, 0, 3, 0, 0, 9],
-        [0, 0, 5, 0, 1, 0, 3, 0, 0],
+        // [0, 0, 3, 0, 2, 0, 6, 0, 0],
+        // [9, 0, 0, 3, 0, 5, 0, 0, 1],
+        // [0, 0, 1, 8, 0, 6, 4, 0, 0],
+        // [0, 0, 8, 1, 0, 2, 9, 0, 0],
+        // [7, 0, 0, 0, 0, 0, 0, 0, 8],
+        // [0, 0, 6, 7, 0, 8, 2, 0, 0],
+        // [0, 0, 2, 6, 0, 9, 5, 0, 0],
+        // [8, 0, 0, 2, 0, 3, 0, 0, 9],
+        // [0, 0, 5, 0, 1, 0, 3, 0, 0],
         // A medium one
-        // [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        // [0, 0, 0, 0, 0, 3, 0, 8, 5],
-        // [0, 0, 1, 0, 2, 0, 0, 0, 0],
-        // [0, 0, 0, 5, 0, 7, 0, 0, 0],
-        // [0, 0, 4, 0, 0, 0, 1, 0, 0],
-        // [0, 9, 0, 0, 0, 0, 0, 0, 0],
-        // [5, 0, 0, 0, 0, 0, 0, 7, 3],
-        // [0, 0, 2, 0, 1, 0, 0, 0, 0],
-        // [0, 0, 0, 0, 4, 0, 0, 0, 9],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 3, 0, 8, 5],
+        [0, 0, 1, 0, 2, 0, 0, 0, 0],
+        [0, 0, 0, 5, 0, 7, 0, 0, 0],
+        [0, 0, 4, 0, 0, 0, 1, 0, 0],
+        [0, 9, 0, 0, 0, 0, 0, 0, 0],
+        [5, 0, 0, 0, 0, 0, 0, 7, 3],
+        [0, 0, 2, 0, 1, 0, 0, 0, 0],
+        [0, 0, 0, 0, 4, 0, 0, 0, 9],
     ]
 
     // generate the domain for each square and ensure node consistency
@@ -31,12 +33,17 @@ function calculate(config, dim = 3) {
             if (square != 0) domain[i][j] = [square];
         });
     });
-    // console.log(domain);
 
+    domain = ac3(domain);
+    console.log(domain);
+}
+
+function ac3(domain) {
+    // AC-3
     let q = new Queue();
     for (let i = 0; i < Math.pow(dim, 2); i++) {
         for (let j = 0; j < Math.pow(dim, 2); j++) {
-            getNeighbors([i, j], dim).forEach(n => q.enqueue([n, [i, j]]));
+            getNeighbors([i, j]).forEach(n => q.enqueue([n, [i, j]]));
         }
     }
     // console.log(q.peek());
@@ -46,7 +53,6 @@ function calculate(config, dim = 3) {
         let revised = false;
         let di = domain[arc[0][0]][arc[0][1]];
         let dj = domain[arc[1][0]][arc[1][1]];
-        if (di.length === 1 && dj.length === 1) continue;
         for (let i = 0; i < di.length; i++) {
             let x = di[i];
             let ac = false;
@@ -54,24 +60,26 @@ function calculate(config, dim = 3) {
                 let y = dj[j];
                 if (y != x) {
                     ac = true;
-                    revised = true;
                     break;
                 }
             }
-            if (!ac) di.splice(i, 1);
+            if (!ac) {
+                revised = true;
+                di.splice(i, 1);
+            }
         }
         if (revised) {
             if (di.filter(e => e != 0).length === 0) return;
-            getNeighbors(arc[0], dim).forEach(n => {
+            getNeighbors(arc[0]).forEach(n => {
                 if (n[0] != arc[1][0] || n[1] != arc[1][1])
                     q.enqueue([n, arc[0]]);
             });
         }
     }
-    console.log(domain);
+    return domain;
 }
 
-function getNeighbors(pos, dim = 3) {
+function getNeighbors(pos) {
     let neighbors = [];
     for (let i = 0; i < Math.pow(dim, 2); i++) {
         for (let j = 0; j < Math.pow(dim, 2); j++) {
@@ -84,4 +92,10 @@ function getNeighbors(pos, dim = 3) {
         }
     }
     return neighbors;
+}
+
+function isComplete(domain) {
+    domain.forEach(row => {
+        
+    });
 }
