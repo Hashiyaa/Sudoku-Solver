@@ -27,7 +27,7 @@ function calculate(config) {
     ]
 
     // generate the domain for each square and ensure node consistency
-    let domain = Array(9).fill(0).map(row => new Array(9).fill(0).map(e => Array(9).fill(0).map((e, i) => i + 1)));
+    let domain = Array(9).fill(0).map(row => new Array(9).fill(0).map(square => Array(9).fill(0).map((square, i) => i + 1)));
     config.forEach((row, i) => {
         row.forEach((square, j) => {
             if (square != 0) domain[i][j] = [square];
@@ -35,7 +35,11 @@ function calculate(config) {
     });
 
     domain = ac3(domain);
-    console.log(domain);
+    // console.log(domain);
+
+    let answer = domain.map(row => row.map(square => square.join("")));
+
+    return answer;
 }
 
 function ac3(domain) {

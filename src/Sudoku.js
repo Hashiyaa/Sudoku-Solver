@@ -1,8 +1,5 @@
-class Board extends React.Component {
-    // constructor(props) {
-    //     super(props);
-    // }
 
+class Board extends React.Component {
     renderTable() {
         const numbers = Array(9).fill(0).map((e, i) => i);
         const w1 = "1px", w2 = "3px", w3 = "5px";
@@ -19,7 +16,8 @@ class Board extends React.Component {
                         if (col === 3 || col === 6) borderArr[3] = w2;
                         if (col === 8) borderArr[1] = w3;
                         return <td key={col} style={{borderWidth: borderArr.join(" ")}}>
-                            <input className="square" type="number" min="1" max="9"
+                            <input className="square" type="text" min="1" max="9"
+                                value={this.props.config[row][col] > 0 ? this.props.config[row][col] : ""}
                                 onChange={event => this.props.onChange(row, col, Number(event.target.value))}
                                 onFocus={() => event.target.type = "number"}
                                 onBlur={() => event.target.type = "text"}>
@@ -67,24 +65,19 @@ class Game extends React.Component {
             config: config,
         });
     }
+
+    solve() {
+        this.setState({
+            config: calculate(this.state.config)
+        });
+    }
   
     render() {
-        // const moves = [1].map((step, move) => {
-        //     const desc = move ?
-        //         'Go to move #' + move :
-        //         'Go to game start';
-        //     return (
-        //         <li key={move}>
-        //             <button onClick={() => this.jumpTo(move)}>{desc}</button>
-        //         </li>
-        //     );
-        // });
-
         return (
             <div className="game">
                 <div className="game-board">
                     <Board
-                        // config={this.state.config}
+                        config={this.state.config}
                         onChange={this.handleChange.bind(this)}
                     />
                 </div>
@@ -98,10 +91,7 @@ class Game extends React.Component {
                         </li>
                     </ol>
                     <div>
-                        <button onClick={() => {
-                            // console.log(this.state.config);
-                            calculate(this.state.config);
-                        }}>
+                        <button onClick={() => this.solve()}>
                             Solve
                         </button>
                     </div>

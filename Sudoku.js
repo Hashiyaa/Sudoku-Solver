@@ -17,11 +17,6 @@ var Board = function (_React$Component) {
 
     _createClass(Board, [{
         key: "renderTable",
-
-        // constructor(props) {
-        //     super(props);
-        // }
-
         value: function renderTable() {
             var _this2 = this;
 
@@ -46,7 +41,8 @@ var Board = function (_React$Component) {
                         return React.createElement(
                             "td",
                             { key: col, style: { borderWidth: borderArr.join(" ") } },
-                            React.createElement("input", { className: "square", type: "number", min: "1", max: "9",
+                            React.createElement("input", { className: "square", type: "text", min: "1", max: "9",
+                                value: _this2.props.config[row][col] > 0 ? _this2.props.config[row][col] : "",
                                 onChange: function onChange(event) {
                                     return _this2.props.onChange(row, col, Number(event.target.value));
                                 },
@@ -114,20 +110,16 @@ var Game = function (_React$Component2) {
             });
         }
     }, {
+        key: "solve",
+        value: function solve() {
+            this.setState({
+                config: calculate(this.state.config)
+            });
+        }
+    }, {
         key: "render",
         value: function render() {
             var _this4 = this;
-
-            // const moves = [1].map((step, move) => {
-            //     const desc = move ?
-            //         'Go to move #' + move :
-            //         'Go to game start';
-            //     return (
-            //         <li key={move}>
-            //             <button onClick={() => this.jumpTo(move)}>{desc}</button>
-            //         </li>
-            //     );
-            // });
 
             return React.createElement(
                 "div",
@@ -135,9 +127,9 @@ var Game = function (_React$Component2) {
                 React.createElement(
                     "div",
                     { className: "game-board" },
-                    React.createElement(Board
-                    // config={this.state.config}
-                    , { onChange: this.handleChange.bind(this)
+                    React.createElement(Board, {
+                        config: this.state.config,
+                        onChange: this.handleChange.bind(this)
                     })
                 ),
                 React.createElement(
@@ -171,8 +163,7 @@ var Game = function (_React$Component2) {
                         React.createElement(
                             "button",
                             { onClick: function onClick() {
-                                    // console.log(this.state.config);
-                                    calculate(_this4.state.config);
+                                    return _this4.solve();
                                 } },
                             "Solve"
                         )
