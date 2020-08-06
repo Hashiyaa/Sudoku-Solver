@@ -6,8 +6,52 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var Board = function (_React$Component) {
-    _inherits(Board, _React$Component);
+var FileInput = function (_React$Component) {
+    _inherits(FileInput, _React$Component);
+
+    function FileInput(props) {
+        _classCallCheck(this, FileInput);
+
+        var _this = _possibleConstructorReturn(this, (FileInput.__proto__ || Object.getPrototypeOf(FileInput)).call(this, props));
+
+        _this.handleSubmit = _this.handleSubmit.bind(_this);
+        _this.fileInput = React.createRef();
+        return _this;
+    }
+
+    _createClass(FileInput, [{
+        key: "handleSubmit",
+        value: function handleSubmit(event) {
+            event.preventDefault();
+            this.props.handleUpload(loadFromLibFile(this.fileInput.current.files[0]));
+        }
+    }, {
+        key: "render",
+        value: function render() {
+            return React.createElement(
+                "form",
+                { onSubmit: this.handleSubmit },
+                React.createElement(
+                    "label",
+                    null,
+                    "Upload file:",
+                    React.createElement("input", { type: "file", ref: this.fileInput })
+                ),
+                React.createElement("br", null),
+                React.createElement(
+                    "button",
+                    { type: "submit" },
+                    "Submit"
+                )
+            );
+        }
+    }]);
+
+    return FileInput;
+}(React.Component);
+
+var Board = function (_React$Component2) {
+    _inherits(Board, _React$Component2);
 
     function Board() {
         _classCallCheck(this, Board);
@@ -18,7 +62,7 @@ var Board = function (_React$Component) {
     _createClass(Board, [{
         key: "renderTable",
         value: function renderTable() {
-            var _this2 = this;
+            var _this3 = this;
 
             var numbers = Array(9).fill(0).map(function (e, i) {
                 return i;
@@ -42,9 +86,9 @@ var Board = function (_React$Component) {
                             "td",
                             { key: col, style: { borderWidth: borderArr.join(" ") } },
                             React.createElement("input", { className: "square", type: "text", min: "1", max: "9",
-                                value: _this2.props.config[row][col] > 0 ? _this2.props.config[row][col] : "",
+                                value: _this3.props.config[row][col] > 0 ? _this3.props.config[row][col] : "",
                                 onChange: function onChange(event) {
-                                    return _this2.props.onChange(row, col, Number(event.target.value));
+                                    return _this3.props.onChange(row, col, Number(event.target.value));
                                 },
                                 onFocus: function onFocus() {
                                     return event.target.type = "number";
@@ -79,23 +123,31 @@ var Board = function (_React$Component) {
     return Board;
 }(React.Component);
 
-var Game = function (_React$Component2) {
-    _inherits(Game, _React$Component2);
+var Game = function (_React$Component3) {
+    _inherits(Game, _React$Component3);
 
     function Game(props) {
         _classCallCheck(this, Game);
 
-        var _this3 = _possibleConstructorReturn(this, (Game.__proto__ || Object.getPrototypeOf(Game)).call(this, props));
+        var _this4 = _possibleConstructorReturn(this, (Game.__proto__ || Object.getPrototypeOf(Game)).call(this, props));
 
-        _this3.state = {
+        _this4.state = {
+            lib: [],
             config: Array(9).fill(0).map(function (row) {
                 return new Array(9).fill(0);
             })
         };
-        return _this3;
+        return _this4;
     }
 
     _createClass(Game, [{
+        key: "handleUpload",
+        value: function handleUpload(lib) {
+            this.setState({
+                lib: lib
+            });
+        }
+    }, {
         key: "handleChange",
         value: function handleChange(i, j, number) {
             // const history = this.state.history.slice(0, this.state.stepNumber + 1);
@@ -109,17 +161,34 @@ var Game = function (_React$Component2) {
                 config: config
             });
         }
+
+        // mode: test, 1 -> solve
+
     }, {
-        key: "solve",
-        value: function solve() {
-            this.setState({
-                config: calculate(this.state.config)
-            });
+        key: "handleSolve",
+        value: function handleSolve(mode) {
+            if (mode == "test") {
+                var solultions = [];
+                this.state.lib.forEach(function (puzzle) {
+                    var sol = calculate(puzzle);
+                    solultions.push(sol);
+                    console.log(sol);
+                });
+                this.setState({
+                    config: solultions[0]
+                });
+            } else if (mode == "solve") {
+                this.setState({
+                    config: calculate(this.state.config)
+                });
+            } else {
+                console.log("Mode should be either test or solve!");
+            }
         }
     }, {
         key: "render",
         value: function render() {
-            var _this4 = this;
+            var _this5 = this;
 
             return React.createElement(
                 "div",
@@ -157,16 +226,15 @@ var Game = function (_React$Component2) {
                             )
                         )
                     ),
+                    React.createElement(FileInput, {
+                        handleUpload: this.handleUpload.bind(this)
+                    }),
                     React.createElement(
-                        "div",
-                        null,
-                        React.createElement(
-                            "button",
-                            { onClick: function onClick() {
-                                    return _this4.solve();
-                                } },
-                            "Solve"
-                        )
+                        "button",
+                        { onClick: function onClick() {
+                                return _this5.handleSolve("test");
+                            } },
+                        " Solve "
                     )
                 )
             );

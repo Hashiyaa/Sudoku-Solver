@@ -3,75 +3,35 @@
 const DIM = 3;
 
 function calculate(config) {
-    config = [
-        // A easy one
-        // [0, 0, 3, 0, 2, 0, 6, 0, 0],
-        // [9, 0, 0, 3, 0, 5, 0, 0, 1],
-        // [0, 0, 1, 8, 0, 6, 4, 0, 0],
-        // [0, 0, 8, 1, 0, 2, 9, 0, 0],
-        // [7, 0, 0, 0, 0, 0, 0, 0, 8],
-        // [0, 0, 6, 7, 0, 8, 2, 0, 0],
-        // [0, 0, 2, 6, 0, 9, 5, 0, 0],
-        // [8, 0, 0, 2, 0, 3, 0, 0, 9],
-        // [0, 0, 5, 0, 1, 0, 3, 0, 0],
-        // A medium one
-        // [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        // [0, 0, 0, 0, 0, 3, 0, 8, 5],
-        // [0, 0, 1, 0, 2, 0, 0, 0, 0],
-        // [0, 0, 0, 5, 0, 7, 0, 0, 0],
-        // [0, 0, 4, 0, 0, 0, 1, 0, 0],
-        // [0, 9, 0, 0, 0, 0, 0, 0, 0],
-        // [5, 0, 0, 0, 0, 0, 0, 7, 3],
-        // [0, 0, 2, 0, 1, 0, 0, 0, 0],
-        // [0, 0, 0, 0, 4, 0, 0, 0, 9],
-        // hard
-        // [0, 6, 0, 0, 2, 7, 8, 0, 0],
-        // [0, 8, 0, 0, 0, 0, 0, 0, 0],
-        // [0, 0, 0, 6, 0, 0, 7, 0, 1],
-        // [5, 0, 3, 0, 0, 2, 0, 4, 0],
-        // [0, 0, 0, 0, 7, 0, 0, 0, 0],
-        // [0, 2, 0, 1, 0, 0, 5, 0, 9],
-        // [4, 0, 1, 0, 0, 3, 0, 0, 0],
-        // [0, 0, 0, 0, 0, 0, 0, 3, 0],
-        // [0, 0, 9, 7, 6, 0, 0, 1, 0],
-        // hidden pair 1
-        // [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        // [0, 0, 0, 0, 4, 2, 7, 3, 0],
-        // [0, 0, 6, 7, 0, 0, 0, 4, 0],
-        // [0, 9, 4, 0, 0, 0, 0, 0, 0],
-        // [0, 0, 0, 0, 9, 6, 0, 0, 0],
-        // [0, 0, 7, 0, 0, 0, 0, 2, 3],
-        // [1, 0, 0, 0, 0, 0, 0, 8, 5],
-        // [0, 6, 0, 0, 8, 0, 2, 7, 0],
-        // [0, 0, 5, 0, 1, 0, 0, 0, 0],
-        // hidden pair 2
-        [0, 0, 0, 0, 3, 2, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 7, 6, 0, 0, 9, 1, 4],
-        [0, 9, 6, 0, 0, 0, 8, 0, 0],
-        [0, 0, 5, 0, 0, 8, 0, 0, 0],
-        [0, 3, 0, 0, 4, 0, 0, 0, 5],
-        [0, 5, 0, 2, 0, 0, 0, 0, 0],
-        [7, 0, 0, 0, 0, 0, 5, 6, 0],
-        [9, 0, 4, 0, 1, 0, 0, 0, 0],
-        // hardest
-        // [8, 0, 0, 0, 0, 0, 0, 0, 0],
-        // [0, 0, 3, 6, 0, 0, 0, 0, 0],
-        // [0, 7, 0, 0, 9, 0, 2, 0, 0],
-        // [0, 5, 0, 0, 0, 7, 0, 0, 0],
-        // [0, 0, 0, 0, 4, 5, 7, 0, 0],
-        // [0, 0, 0, 1, 0, 0, 0, 3, 0],
-        // [0, 0, 1, 0, 0, 0, 0, 6, 8],
-        // [0, 0, 8, 5, 0, 0, 0, 1, 0],
-        // [0, 9, 0, 0, 0, 0, 4, 0, 0],
-    ]
-
     let s = new Solver(config);
     return s.solve();
 }
 
-function loadFromLib() {
-
+function loadFromLibFile(file) {
+    const validCharSet = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'];
+    let puzzleSet = [];
+    let fr = new FileReader();
+    fr.onload = function() {
+        let lib = fr.result.toString().split("\n");
+        lib.forEach(puzzleStr => {
+            let config = Array(DIM * DIM).fill(0).map(row => Array(DIM * DIM).fill(0));
+            puzzleStr = puzzleStr.trim();
+            let length = Math.min(puzzleStr.length, Math.pow(DIM, 4));
+            for (let i = 0; i < length; i++) {
+                if (!validCharSet.includes(puzzleStr.charAt(i))) {
+                    break;
+                }
+                if (puzzleStr.charAt(i) == '.') {
+                    config[Math.floor(i / (DIM * DIM))][i % (DIM * DIM)] = 0;
+                } else {
+                    config[Math.floor(i / (DIM * DIM))][i % (DIM * DIM)] = Number(puzzleStr.charAt(i));
+                }
+            }
+            puzzleSet.push(config);
+        });
+    };
+    fr.readAsText(file);
+    return puzzleSet;
 }
 
 function saveToLib() {
@@ -80,7 +40,7 @@ function saveToLib() {
 
 class Solver {
     constructor(config) {
-        this.domain = Array(9).fill(0).map(row => Array(9).fill(0).map(square => Array(9).fill(0).map((square, i) => i + 1)));
+        this.domain = Array(DIM * DIM).fill(0).map(row => Array(DIM * DIM).fill(0).map(square => Array(DIM * DIM).fill(0).map((square, i) => i + 1)));
         config.forEach((row, i) => {
             row.forEach((square, j) => {
                 if (square != 0) this.domain[i][j] = [square];
@@ -89,10 +49,10 @@ class Solver {
     }
 
     solve() {
-        let iter = 1;
+        let iter = 10;
         while (iter > 0) {
             this.ac3();
-            this.hiddenProp();
+            this.hiddenSinglesProp();
             this.nakedProp();
             iter--;
         }
@@ -144,9 +104,8 @@ class Solver {
         }
     }
 
-    // hidden singles, hiddlen pairs
-    // TODO: hidden triplets and hidden quads
-    hiddenProp() {
+    // hidden singles
+    hiddenSinglesProp() {
         for (let i = 0; i < DIM * DIM; i++) {
             // counters for rows, cols and blocks
             let counters = Array(3).fill(0).map(e => Array(DIM * DIM).fill(0));
@@ -158,39 +117,19 @@ class Solver {
                 this.domain[r][c].forEach(n => counters[2][n - 1]++);
             }
             
-            let pairs = Array(3).fill(0).map(e => Array());
+            let revised = false;
             // a house (type) is either a row (0), a column (1), or a block (2)
             counters.forEach((house, type) => {
                 house.forEach((count, index) => {
                     if (count < 1) {
                         return;
-                    } else if (count == 1) {
-                        for (let k = 0; k < DIM * DIM; k++) {
-                            if (type == 0) {
-                                if (this.domain[i][k].length > 1 && this.domain[i][k].includes(index + 1)) {
-                                    this.domain[i][k] = [index + 1];
-                                    break;
-                                }
-                            } else if (type == 1) {
-                                if (this.domain[k][i].length > 1 && this.domain[k][i].includes(index + 1)) {
-                                    this.domain[k][i] = [index + 1];
-                                    break;
-                                }
-                            } else {
-                                let r = Math.floor(i / DIM) * DIM + Math.floor(k / DIM);
-                                let c = Math.floor(i % DIM) * DIM + Math.floor(k % DIM);
-                                if (this.domain[r][c].length > 1 && this.domain[r][c].includes(index + 1)) {
-                                    this.domain[r][c] = [index + 1];
-                                    break;
-                                }
-                            }
-                        }
-                    } else if (count == 2) {
+                    } 
+                    if (count == 1) {
                         for (let k = 0; k < DIM * DIM; k++) {
                             let pos = [];
                             if (type == 0) {
                                 if (this.domain[i][k].length > 1 && this.domain[i][k].includes(index + 1)) {
-                                   pos = [i, k];
+                                    pos = [i, k];
                                 }
                             } else if (type == 1) {
                                 if (this.domain[k][i].length > 1 && this.domain[k][i].includes(index + 1)) {
@@ -203,39 +142,97 @@ class Solver {
                                     pos = [r, c];
                                 }
                             }
-                            let contained = false;
-                            for (let p = 0; p < pairs[type].length; p++) {
-                                if (pairs[type][p].pos.join() == pos.join()) {
-                                    contained = true;
-                                    if (!pairs[type][p].number.includes(index + 1)) {
-                                        pairs[type][p].number.push(index + 1);
-                                    }
-                                    break;
-                                }
-                            }
-                            if (!contained && pos.length > 0) {
-                                pairs[type].push({pos: pos, number: [index + 1]});
+                            if (pos.length > 0) {
+                                this.domain[pos[0]][pos[1]] = [index + 1];
+                                revised = true;
+                                break;
                             }
                         }
-                    }
+                    } 
                 });
-                this.ac3();
-                if (pairs[type].length > 0) {
-                    for (let j = 0; j < pairs[type].length - 1; j++) {
-                        for (let k = j + 1; k < pairs[type].length; k++) {
-                            if (pairs[type][j].number.length > 1 && 
-                                pairs[type][j].number.join() == pairs[type][k].number.join()) {
-                                let p1 = pairs[type][j].pos;
-                                let p2 = pairs[type][k].pos;
-                                this.domain[p1[0]][p1[1]] = pairs[type][j].number;
-                                this.domain[p2[0]][p2[1]] = pairs[type][k].number;
-                            }
-                        }
-                    }
-                }
             });
-            // console.log(pairs);
         }
+    }
+
+    // hiddlen pairs
+    // TODO: hidden triplets and hidden quads
+    hiddenProp() {
+                    // 1st dim: row, column, block
+            // 2nd dim: pair, triplet, quad
+            let hiddenNums = Array(3).fill(0).map(e => Array(3).fill(0).map(e => Array()));
+            let revised = false;
+        // else if (count < 5) {
+        //     // 0 -> pair, 1 -> triplet, 2-> quad
+        //     let comb = count - 2;
+        //     for (let k = 0; k < DIM * DIM; k++) {
+        //         let pos = [];
+        //         if (type == 0) {
+        //             if (this.domain[i][k].length > 1 && this.domain[i][k].includes(index + 1)) {
+        //                pos = [i, k];
+        //             }
+        //         } else if (type == 1) {
+        //             if (this.domain[k][i].length > 1 && this.domain[k][i].includes(index + 1)) {
+        //                 pos = [k, i];
+        //             }
+        //         } else {
+        //             let r = Math.floor(i / DIM) * DIM + Math.floor(k / DIM);
+        //             let c = Math.floor(i % DIM) * DIM + Math.floor(k % DIM);
+        //             if (this.domain[r][c].length > 1 && this.domain[r][c].includes(index + 1)) {
+        //                 pos = [r, c];
+        //             }
+        //         }
+        //         let contained = false;
+        //         for (let p = 0; p < hiddenNums[type][comb].length; p++) {
+        //             if (hiddenNums[type][comb][p].pos.join() == pos.join()) {
+        //                 contained = true;
+        //                 if (!hiddenNums[type][comb][p].number.includes(index + 1)) {
+        //                     hiddenNums[type][comb][p].number.push(index + 1);
+        //                 }
+        //                 break;
+        //             }
+        //         }
+        //         if (!contained && pos.length > 0) {
+        //             hiddenNums[type][comb].push({pos: pos, number: [index + 1]});
+        //         }
+        //     }
+        // }
+        // // update hiddlen pairs, hidden triplets and hidden quads
+        // for (let count = 2; count < 5; count++) {
+        //     // if (count > 3) continue;
+        //     if (revised) {
+        //         this.ac3();
+        //         revised = false;
+        //     }
+        //     let comb = count - 2;
+        //     if (comb > 0) 
+        //         hiddenNums[type][comb] = hiddenNums[type][comb].concat(hiddenNums[type][comb - 1]);
+        //     let equalPos = [];
+        //     let numSet = [];
+        //     let posSet = [];
+        //     for (let l = 0; l < hiddenNums[type][comb].length; l++) {
+        //         hiddenNums[type][comb][l].number.forEach(n => {
+        //             if (!numSet.includes(n)) {
+        //                 numSet.push(n);
+        //             }
+        //         });
+                
+        //         // for (let k = j + 1; k < hiddenNums[type][comb].length; k++) {
+        //         //     if (hiddenNums[type][comb][j].number.length > 1 && 
+        //         //         hiddenNums[type][comb][j].number.length <= count && 
+        //         //         hiddenNums[type][comb][j].number.join() == hiddenNums[type][comb][k].number.join()) {
+        //         //         if (!equalPos.includes(j)) equalPos.push(j);
+        //         //         if (!equalPos.includes(k)) equalPos.push(k);
+        //         //     }
+        //         // }
+        //     }
+        //     if (count == equalPos.length) {
+        //         equalPos.forEach(n => {
+        //             let pos = hiddenNums[type][comb][n].pos;
+        //             this.domain[pos[0]][pos[1]] = hiddenNums[type][comb][n].number;
+        //             revised = true;
+        //         });
+        //     }
+        // }
     }
 
     // naked pairs

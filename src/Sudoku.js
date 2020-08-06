@@ -1,4 +1,31 @@
 
+class FileInput extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.fileInput = React.createRef();
+    }
+
+    handleSubmit(event) {
+        event.preventDefault();
+        this.props.handleUpload(loadFromLibFile(this.fileInput.current.files[0]));
+    }
+
+    render() {
+        return (
+            <form onSubmit={this.handleSubmit}>
+                <label>
+                    Upload file:
+                    <input type="file" ref={this.fileInput} />
+                </label>
+                <br />
+                <button type="submit">Submit</button>
+            </form>
+        );
+    }
+}
+
+
 class Board extends React.Component {
     renderTable() {
         const numbers = Array(9).fill(0).map((e, i) => i);
@@ -49,8 +76,15 @@ class Game extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            lib: [],
             config: Array(9).fill(0).map(row => new Array(9).fill(0))
         };
+    }
+
+    handleUpload(lib) {
+        this.setState({
+            lib: lib,
+        })
     }
   
     handleChange(i, j, number) {
@@ -66,10 +100,25 @@ class Game extends React.Component {
         });
     }
 
-    solve() {
-        this.setState({
-            config: calculate(this.state.config)
-        });
+    // mode: test, 1 -> solve
+    handleSolve(mode) {
+        if (mode == "test") {
+            let solultions = [];
+            this.state.lib.forEach(puzzle => {
+                let sol = calculate(puzzle);
+                solultions.push(sol);
+                console.log(sol);
+            });
+            this.setState({
+                config: solultions[0],
+            });
+        } else if (mode == "solve") {
+            this.setState({
+                config: calculate(this.state.config)
+            });
+        } else {
+            console.log("Mode should be either test or solve!")
+        }
     }
   
     render() {
@@ -81,7 +130,7 @@ class Game extends React.Component {
                         onChange={this.handleChange.bind(this)}
                     />
                 </div>
-                    <div className="game-info">
+                <div className="game-info">
                     <ol>
                         <li key="enter">
                             <p>Enter the puzzle in the grid above.</p>
@@ -90,11 +139,10 @@ class Game extends React.Component {
                             <p>Click "Solve" to get the answer.</p>
                         </li>
                     </ol>
-                    <div>
-                        <button onClick={() => this.solve()}>
-                            Solve
-                        </button>
-                    </div>
+                    <FileInput
+                        handleUpload={this.handleUpload.bind(this)}
+                    />
+                    <button onClick={() => this.handleSolve("test")}> Solve </button>
                 </div>
             </div>
         );
