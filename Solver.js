@@ -21,10 +21,10 @@ function loadFromLibFile(file) {
                 if (!validCharSet.includes(puzzleStr.charAt(i))) {
                     break;
                 }
-                if (puzzleStr.charAt(i) == '.') {
-                    config[Math.floor(i / (DIM * DIM))][i % (DIM * DIM)] = 0;
+                if (puzzleStr.charAt(i) == '.' || puzzleStr.charAt(i) == '0') {
+                    config[Math.floor(i / (DIM * DIM))][i % (DIM * DIM)] = Array(9).fill(0).map((e, i) => i);
                 } else {
-                    config[Math.floor(i / (DIM * DIM))][i % (DIM * DIM)] = Number(puzzleStr.charAt(i));
+                    config[Math.floor(i / (DIM * DIM))][i % (DIM * DIM)] = [Number(puzzleStr.charAt(i))];
                 }
             }
             puzzleSet.push(config);
@@ -40,25 +40,20 @@ function saveToLib() {
 
 class Solver {
     constructor(config) {
-        this.domain = Array(DIM * DIM).fill(0).map(row => Array(DIM * DIM).fill(0).map(square => Array(DIM * DIM).fill(0).map((square, i) => i + 1)));
-        config.forEach((row, i) => {
-            row.forEach((square, j) => {
-                if (square != 0) this.domain[i][j] = [square];
-            });
-        });
+        this.config = config;
     }
 
     solve() {
-        let iter = 10;
+        let iter = 1;
         while (iter > 0) {
             this.ac3();
             this.hiddenSinglesProp();
-            this.nakedProp();
+            // this.nakedProp();
             iter--;
         }
-        // console.log(this.domain);
+        // console.log(this.config);
 
-        let answer = this.domain.map(row => row.map(square => square.join("")));
+        let answer = this.config.map(row => row.map(square => square.join("")));
 
         return answer;
     }
@@ -76,8 +71,8 @@ class Solver {
         while (!q.isEmpty()) {
             let arc = q.dequeue();
             let revised = false;
-            let di = this.domain[arc[0][0]][arc[0][1]];
-            let dj = this.domain[arc[1][0]][arc[1][1]];
+            let di = this.config[arc[0][0]][arc[0][1]];
+            let dj = this.config[arc[1][0]][arc[1][1]];
             for (let i = 0; i < di.length; i++) {
                 let x = di[i];
                 let ac = false;
@@ -95,7 +90,7 @@ class Solver {
             }
 
             if (revised) {
-                if (di.filter(e => e != 0).length === 0) return;
+                if (di.filter(e => e != 0).length == 0) return;
                 this.getNeighbors(arc[0]).forEach(n => {
                     if (n[0] != arc[1][0] || n[1] != arc[1][1])
                         q.enqueue([n, arc[0]]);
@@ -110,11 +105,11 @@ class Solver {
             // counters for rows, cols and blocks
             let counters = Array(3).fill(0).map(e => Array(DIM * DIM).fill(0));
             for (let j = 0; j < DIM * DIM; j++) {
-                this.domain[i][j].forEach(n => counters[0][n - 1]++);
-                this.domain[j][i].forEach(n => counters[1][n - 1]++);
+                this.config[i][j].forEach(n => counters[0][n - 1]++);
+                this.config[j][i].forEach(n => counters[1][n - 1]++);
                 let r = Math.floor(i / DIM) * DIM + Math.floor(j / DIM);
                 let c = Math.floor(i % DIM) * DIM + Math.floor(j % DIM);
-                this.domain[r][c].forEach(n => counters[2][n - 1]++);
+                this.config[r][c].forEach(n => counters[2][n - 1]++);
             }
             
             let revised = false;
@@ -128,22 +123,22 @@ class Solver {
                         for (let k = 0; k < DIM * DIM; k++) {
                             let pos = [];
                             if (type == 0) {
-                                if (this.domain[i][k].length > 1 && this.domain[i][k].includes(index + 1)) {
+                                if (this.config[i][k].length > 1 && this.config[i][k].includes(index + 1)) {
                                     pos = [i, k];
                                 }
                             } else if (type == 1) {
-                                if (this.domain[k][i].length > 1 && this.domain[k][i].includes(index + 1)) {
+                                if (this.config[k][i].length > 1 && this.config[k][i].includes(index + 1)) {
                                     pos = [k, i];
                                 }
                             } else {
                                 let r = Math.floor(i / DIM) * DIM + Math.floor(k / DIM);
                                 let c = Math.floor(i % DIM) * DIM + Math.floor(k % DIM);
-                                if (this.domain[r][c].length > 1 && this.domain[r][c].includes(index + 1)) {
+                                if (this.config[r][c].length > 1 && this.config[r][c].includes(index + 1)) {
                                     pos = [r, c];
                                 }
                             }
                             if (pos.length > 0) {
-                                this.domain[pos[0]][pos[1]] = [index + 1];
+                                this.config[pos[0]][pos[1]] = [index + 1];
                                 revised = true;
                                 break;
                             }
@@ -167,17 +162,17 @@ class Solver {
         //     for (let k = 0; k < DIM * DIM; k++) {
         //         let pos = [];
         //         if (type == 0) {
-        //             if (this.domain[i][k].length > 1 && this.domain[i][k].includes(index + 1)) {
+        //             if (this.config[i][k].length > 1 && this.config[i][k].includes(index + 1)) {
         //                pos = [i, k];
         //             }
         //         } else if (type == 1) {
-        //             if (this.domain[k][i].length > 1 && this.domain[k][i].includes(index + 1)) {
+        //             if (this.config[k][i].length > 1 && this.config[k][i].includes(index + 1)) {
         //                 pos = [k, i];
         //             }
         //         } else {
         //             let r = Math.floor(i / DIM) * DIM + Math.floor(k / DIM);
         //             let c = Math.floor(i % DIM) * DIM + Math.floor(k % DIM);
-        //             if (this.domain[r][c].length > 1 && this.domain[r][c].includes(index + 1)) {
+        //             if (this.config[r][c].length > 1 && this.config[r][c].includes(index + 1)) {
         //                 pos = [r, c];
         //             }
         //         }
@@ -228,7 +223,7 @@ class Solver {
         //     if (count == equalPos.length) {
         //         equalPos.forEach(n => {
         //             let pos = hiddenNums[type][comb][n].pos;
-        //             this.domain[pos[0]][pos[1]] = hiddenNums[type][comb][n].number;
+        //             this.config[pos[0]][pos[1]] = hiddenNums[type][comb][n].number;
         //             revised = true;
         //         });
         //     }
@@ -241,22 +236,22 @@ class Solver {
         for (let k = 2; k < kMax; k++) {
             for (let i = 0; i < DIM * DIM; i++) {
                 for (let j = 0; j < DIM * DIM; j++) {
-                    if (this.domain[i][j].length == k) {
+                    if (this.config[i][j].length == k) {
                         
                         let neighbors = this.getNeighbors([i, j])
                         neighbors.forEach(n => {
-                            if (this.domain[n[0]][n[1]].join() == this.domain[i][j].join()) {
+                            if (this.config[n[0]][n[1]].join() == this.config[i][j].join()) {
                                 if (i == n[0]) {
                                     for (let c = 0; c < DIM * DIM; c++) {
                                         if (c != j && c != n[1]) {
-                                            this.domain[i][c] = this.domain[i][c].filter(e => !this.domain[i][j].includes(e));
+                                            this.config[i][c] = this.config[i][c].filter(e => !this.config[i][j].includes(e));
                                         }
                                     }
                                 }
                                 if (j == n[1]) {
                                     for (let r = 0; r < DIM * DIM; r++) {
                                         if (r != i && r != n[0]) {
-                                            this.domain[r][j] = this.domain[r][j].filter(e => !this.domain[i][j].includes(e));
+                                            this.config[r][j] = this.config[r][j].filter(e => !this.config[i][j].includes(e));
                                         }
                                     }
                                 }
@@ -267,7 +262,7 @@ class Solver {
                                         let r = Math.floor(num / DIM) * DIM + Math.floor(b / DIM);
                                         let c = Math.floor(num % DIM) * DIM + Math.floor(b % DIM);
                                         if ((r != i && r != n[0]) || (c != j && c != n[1])) {
-                                            this.domain[r][c] = this.domain[r][c].filter(e => !this.domain[i][j].includes(e));
+                                            this.config[r][c] = this.config[r][c].filter(e => !this.config[i][j].includes(e));
                                         }
                                     }
                                 }
@@ -284,7 +279,7 @@ class Solver {
     }
 
     isComplete() {
-        this.domain.forEach(row => {
+        this.config.forEach(row => {
             row.forEach(square => {
                 if (square.length > 1) return false;
             })
@@ -296,11 +291,11 @@ class Solver {
         let neighbors = [];
         for (let i = 0; i < DIM * DIM; i++) {
             for (let j = 0; j < DIM * DIM; j++) {
-                let row = i === pos[0] && j != pos[1];
-                let col = i != pos[0] && j === pos[1];
-                let block = (Math.floor(i / DIM) === Math.floor(pos[0] / DIM)) &&
-                    (Math.floor(j / DIM) === Math.floor(pos[1] / DIM)) &&
-                    !(i === pos[0] && j === pos[1]);
+                let row = i == pos[0] && j != pos[1];
+                let col = i != pos[0] && j == pos[1];
+                let block = (Math.floor(i / DIM) == Math.floor(pos[0] / DIM)) &&
+                    (Math.floor(j / DIM) == Math.floor(pos[1] / DIM)) &&
+                    !(i == pos[0] && j == pos[1]);
                 if (row || col || block) neighbors.push([i, j]);
             }
         }

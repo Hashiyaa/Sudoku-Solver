@@ -1,5 +1,5 @@
 body {
-    font: 14px Georgia, 'Times New Roman', Times, serif;;
+    font: 18px Georgia, 'Times New Roman', Times, serif;;
     margin: 20px;
 }
 
@@ -8,7 +8,8 @@ ol, ul {
 }
 
 table {
-    border-spacing: 0px;
+    table-layout: fixed;
+    border-collapse: collapse;
 }
 
 td {
@@ -19,24 +20,36 @@ td {
     margin-bottom: -1px;
 }
 
+td .in-block {
+    width: 25px;
+    height: 25px;
+    border-width: 0px;
+}
+
 .square {
     border: none;
-    line-height: 50px;
-    width: 50px;
-    height: 50px;
+    width: 75px;
+    height: 75px;
     text-align: center;
     font-size: 12px;
     font-weight: bold;
 }
 
-.board-row:after {
-    clear: both;
-    content: "";
-    display: table;
+.square .given {
+    color: black;
 }
-  
-.status {
-    margin-bottom: 10px;
+
+.square .placed {
+    color: blue;
+}
+
+.mark {
+    background: #fff;
+    border: none;
+    width: 95%;
+    height: 95%;
+    text-align: center;
+    font: 16px Georgia, 'Times New Roman', Times, serif;;
 }
   
 .game {
@@ -45,6 +58,6 @@ td {
     align-items: center;
 }
   
-.game-info {
+.info {
     margin-top: 20px;
 }
