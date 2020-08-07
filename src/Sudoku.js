@@ -8,7 +8,31 @@ class FileInput extends React.Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        this.props.handleUpload(loadFromLibFile(this.fileInput.current.files[0]));
+        let onUpload = this.props.onUpload;
+        const validCharSet = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'];
+        let fr = new FileReader();
+        fr.onload = function() {
+            let puzzleSet = [];
+            let lib = fr.result.toString().split("\n");
+            lib.forEach(puzzleStr => {
+                let config = Array(DIM * DIM).fill(0).map(row => Array(DIM * DIM).fill(0));
+                puzzleStr = puzzleStr.trim();
+                let length = Math.min(puzzleStr.length, Math.pow(DIM, 4));
+                for (let i = 0; i < length; i++) {
+                    if (!validCharSet.includes(puzzleStr.charAt(i))) {
+                        break;
+                    }
+                    if (puzzleStr.charAt(i) == '.' || puzzleStr.charAt(i) == '0') {
+                        config[Math.floor(i / (DIM * DIM))][i % (DIM * DIM)] = Array(9).fill(0).map((e, i) => i + 1);
+                    } else {
+                        config[Math.floor(i / (DIM * DIM))][i % (DIM * DIM)] = [Number(puzzleStr.charAt(i))];
+                    }
+                }
+                puzzleSet.push(config);
+            });
+            onUpload(puzzleSet);
+        };
+        fr.readAsText(this.fileInput.current.files[0]);
     }
 
     render() {
@@ -81,7 +105,7 @@ class Square extends React.Component {
     render() {
         if (this.props.value.length == 1) {
             return (
-                <input className="square {this.props.type}" type="text" min="1" max="9"
+                <input className={"square " + this.props.type} type="text" min="1" max="9"
                     value={this.props.value[0]}
                     onChange={event => this.props.onChange(this.props.row, this.props.col, Number(event.target.value))}
                     onFocus={() => event.target.type = "number"}
@@ -90,7 +114,7 @@ class Square extends React.Component {
             );
         } else {
             return (
-                <table>
+                <table className="square">
                     <tbody>
                         {this.renderBlock()}
                     </tbody>
@@ -102,6 +126,7 @@ class Square extends React.Component {
 
 class Board extends React.Component {
     renderTable() {
+        console.log(this.props.config)
         const numbers = Array(9).fill(0).map((e, i) => i);
         const w1 = "1px", w2 = "3px", w3 = "5px";
         return numbers.map((row) => {
@@ -120,8 +145,8 @@ class Board extends React.Component {
                             <Square 
                                 row={row}
                                 col={col}
-                                type={this.props.typeConfig[row][col]}
                                 value={this.props.config[row][col]}
+                                type={this.props.typeConfig[row][col]}
                                 onChange={this.props.onChange}
                             />
                         </td>
@@ -148,29 +173,25 @@ class Board extends React.Component {
 class Puzzle extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            config: Array(9).fill(0).map(row => new Array(9).fill(0).map(square =>  Array(9).fill(0).map((value, i) => i + 1))),
-            typeConfig: Array(9).fill(0).map(row => new Array(9).fill("unplaced"))
-        };
     }
   
     handleChange(i, j, number) {
         // const history = this.state.history.slice(0, this.state.stepNumber + 1);
         // const current = history[history.length - 1];
-        const config = this.state.config.slice();
-        const typeConfig = this.state.typeConfig.slice();
-        config[i][j] = [number];
-        typeConfig[i][j] = "given";
-        this.setState({
-            config: config,
-            typeConfig: typeConfig,
-        });
+        // const config = this.state.config.slice();
+        // const typeConfig = this.state.typeConfig.slice();
+        // config[i][j] = [number];
+        // typeConfig[i][j] = "given";
+        // this.setState({
+        //     config: config,
+        //     typeConfig: typeConfig,
+        // });
     }
 
     handleSolve() {
-        this.setState({
-            config: calculate(this.state.config)
-        });
+        // this.setState({
+        //     config: calculate(this.state.config)
+        // });
         
     }
   
@@ -179,8 +200,8 @@ class Puzzle extends React.Component {
             <div>
                 <div className="board">
                     <Board
-                        config={this.state.config}
-                        typeConfig={this.state.typeConfig}
+                        config={this.props.config}
+                        typeConfig={this.props.typeConfig}
                         onChange={this.handleChange.bind(this)}
                     />
                 </div>
@@ -196,19 +217,33 @@ class Game extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            lib: [],
+            library: [],
+            config: Array(9).fill(0).map(row => new Array(9).fill(0).map(square =>  Array(9).fill(0).map((value, i) => i + 1))),
+            typeConfig: Array(9).fill(0).map(row => new Array(9).fill("unplaced"))
         }
     }
 
     handleUpload(lib) {
+        let typeConfig = this.state.typeConfig.slice();
+        let config = lib[0];
+        config.forEach((row, i) => 
+            row.forEach((square, j) => {
+                if (square.length == 1) 
+                    typeConfig[i][j] = "given"
+            })
+        )
         this.setState({
-            lib: lib,
+            library: lib,
+            config: config,
+            typeConfig: typeConfig
         })
+        // console.log(this.state.config);
+        // console.log(this.state.typeConfig);
     }
 
     handlePlay(mode) {
         if (mode == "test") {
-            this.state.lib.forEach(puzzle => {
+            this.state.library.forEach(puzzle => {
             });
         } else if (mode == "solve") {
         } else {
@@ -229,11 +264,14 @@ class Game extends React.Component {
                         </li>
                     </ol>
                     <FileInput
-                        handleUpload={this.handleUpload.bind(this)}
+                        onUpload={this.handleUpload.bind(this)}
                     />
                 </div>
                 <div className="puzzle">
-                    <Puzzle/>
+                    <Puzzle
+                        config={this.state.config}
+                        typeConfig={this.state.typeConfig}
+                    />
                 </div>
             </div>
         );

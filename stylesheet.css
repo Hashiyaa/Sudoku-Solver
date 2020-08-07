@@ -20,26 +20,30 @@ td {
     margin-bottom: -1px;
 }
 
-td .in-block {
-    width: 25px;
-    height: 25px;
+td.in-block {
+    width: 24px;
+    height: 24px;
     border-width: 0px;
 }
 
 .square {
+    padding: 0px;
     border: none;
     width: 75px;
     height: 75px;
     text-align: center;
-    font-size: 12px;
     font-weight: bold;
 }
 
-.square .given {
+input.square {
+    font-size: 32px;
+}
+
+.given {
     color: black;
 }
 
-.square .placed {
+.placed {
     color: blue;
 }
 
