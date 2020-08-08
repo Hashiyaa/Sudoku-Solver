@@ -26,7 +26,7 @@ td.in-block {
     border-width: 0px;
 }
 
-.square {
+.grid {
     padding: 0px;
     border: none;
     width: 75px;
@@ -35,7 +35,7 @@ td.in-block {
     font-weight: bold;
 }
 
-input.square {
+input.grid {
     font-size: 32px;
 }
 

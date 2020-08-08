@@ -2,9 +2,22 @@
 
 const DIM = 3;
 
-function calculate(config) {
+function calculate(config, algo) {
     let s = new Solver(config);
-    return s.solve();
+    if (algo == "naked_single") {
+        s.ac3();
+    } else if (algo == "hidden_single") {
+        s.hiddenSinglesProp();
+    } else {
+        let iter = 1;
+        while (iter > 0) {
+            this.ac3();
+            this.hiddenSinglesProp();
+            this.ac3();
+            iter--;
+        }
+    }
+    return s.config.slice();
 }
 
 function saveToLib() {
@@ -16,34 +29,18 @@ class Solver {
         this.config = config;
     }
 
-    solve() {
-        let iter = 1;
-        while (iter > 0) {
-            this.ac3();
-            this.hiddenSinglesProp();
-            this.ac3();
-            // this.nakedProp();
-            iter--;
-        }
-        console.log(this.config);
-
-        let answer = this.config.slice();
-
-        return answer;
-    }
-
     ac3() {
         // AC-3
-        let q = new Queue();
+        let q = [];
         for (let i = 0; i < DIM * DIM; i++) {
             for (let j = 0; j < DIM * DIM; j++) {
-                this.getNeighbors([i, j]).forEach(n => q.enqueue([n, [i, j]]));
+                this.getNeighbors([i, j]).forEach(n => q.push([n, [i, j]]));
             }
         }
         // console.log(q.peek());
 
-        while (!q.isEmpty()) {
-            let arc = q.dequeue();
+        while (q.length != 0) {
+            let arc = q.pop();
             let revised = false;
             let di = this.config[arc[0][0]][arc[0][1]];
             let dj = this.config[arc[1][0]][arc[1][1]];
@@ -67,7 +64,7 @@ class Solver {
                 if (di.filter(e => e != 0).length == 0) return;
                 this.getNeighbors(arc[0]).forEach(n => {
                     if (n[0] != arc[1][0] || n[1] != arc[1][1])
-                        q.enqueue([n, arc[0]]);
+                        q.push([n, arc[0]]);
                 });
             }
         }
@@ -254,8 +251,8 @@ class Solver {
 
     isComplete() {
         this.config.forEach(row => {
-            row.forEach(square => {
-                if (square.length > 1) return false;
+            row.forEach(grid => {
+                if (grid.length > 1) return false;
             })
         });
         return true;
