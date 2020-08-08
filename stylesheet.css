@@ -63,5 +63,9 @@ input.square {
 }
   
 .info {
+    margin-bottom: 20px;
+}
+
+.update {
     margin-top: 20px;
 }

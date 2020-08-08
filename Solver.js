@@ -21,6 +21,7 @@ class Solver {
         while (iter > 0) {
             this.ac3();
             this.hiddenSinglesProp();
+            this.ac3();
             // this.nakedProp();
             iter--;
         }

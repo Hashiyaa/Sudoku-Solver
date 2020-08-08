@@ -6,21 +6,180 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var FileInput = function (_React$Component) {
-    _inherits(FileInput, _React$Component);
+var Game = function (_React$Component) {
+    _inherits(Game, _React$Component);
+
+    function Game(props) {
+        _classCallCheck(this, Game);
+
+        var _this = _possibleConstructorReturn(this, (Game.__proto__ || Object.getPrototypeOf(Game)).call(this, props));
+
+        _this.state = {
+            library: [],
+            config: Array(9).fill(0).map(function (row) {
+                return new Array(9).fill(0).map(function (square) {
+                    return Array(9).fill(0).map(function (value, i) {
+                        return i + 1;
+                    });
+                });
+            }),
+            typeConfig: Array(9).fill(0).map(function (row) {
+                return new Array(9).fill("unplaced");
+            }),
+            showPencilMark: false
+        };
+        return _this;
+    }
+
+    _createClass(Game, [{
+        key: "handleUpload",
+        value: function handleUpload(lib) {
+            var typeConfig = this.state.typeConfig.slice();
+            var config = lib[0];
+            config.forEach(function (row, i) {
+                return row.forEach(function (square, j) {
+                    if (square.length == 1) typeConfig[i][j] = "given";
+                });
+            });
+            this.setState({
+                library: lib,
+                config: config,
+                typeConfig: typeConfig
+            });
+            // console.log(this.state.config);
+            // console.log(this.state.typeConfig);
+        }
+    }, {
+        key: "handlePencilMark",
+        value: function handlePencilMark(event) {
+            this.setState({
+                showPencilMark: !this.state.showPencilMark
+            });
+        }
+    }, {
+        key: "handleChange",
+        value: function handleChange(i, j, number) {
+            // const history = this.state.history.slice(0, this.state.stepNumber + 1);
+            // const current = history[history.length - 1];
+            var config = this.state.config.slice();
+            var typeConfig = this.state.typeConfig.slice();
+            config[i][j] = [number];
+            typeConfig[i][j] = "given";
+            this.setState({
+                config: config,
+                typeConfig: typeConfig
+            });
+        }
+    }, {
+        key: "handleSolve",
+        value: function handleSolve() {
+            var _this2 = this;
+
+            var sol = calculate(this.state.config);
+            this.setState({
+                config: sol
+            });
+            sol.forEach(function (row, i) {
+                row.forEach(function (square, j) {
+                    if (square.length == 1 && _this2.state.typeConfig[i][j] == "unplaced") {
+                        var typeConfig = _this2.state.typeConfig.slice();
+                        console.log(typeConfig);
+                        typeConfig[i][j] = "placed";
+                        _this2.setState({
+                            typeConfig: typeConfig
+                        });
+                    }
+                });
+            });
+        }
+    }, {
+        key: "handlePlay",
+        value: function handlePlay(mode) {
+            if (mode == "test") {
+                this.state.library.forEach(function (puzzle) {});
+            } else if (mode == "solve") {} else {
+                console.log("Mode should be either test or solve!");
+            }
+        }
+    }, {
+        key: "render",
+        value: function render() {
+            return React.createElement(
+                "div",
+                { className: "game" },
+                React.createElement(
+                    "div",
+                    { className: "info" },
+                    React.createElement(
+                        "ol",
+                        null,
+                        React.createElement(
+                            "li",
+                            { key: "enter" },
+                            React.createElement(
+                                "p",
+                                null,
+                                "Enter the puzzle in the grid above."
+                            )
+                        ),
+                        React.createElement(
+                            "li",
+                            { key: "solve" },
+                            React.createElement(
+                                "p",
+                                null,
+                                "Click \"Solve\" to get the answer."
+                            )
+                        )
+                    ),
+                    React.createElement(FileInput, {
+                        onUpload: this.handleUpload.bind(this)
+                    }),
+                    React.createElement(Setting, {
+                        onChange: this.handlePencilMark.bind(this)
+                    })
+                ),
+                React.createElement(
+                    "div",
+                    { className: "puzzle" },
+                    React.createElement(Board, {
+                        config: this.state.config,
+                        typeConfig: this.state.typeConfig,
+                        showPencilMark: this.state.showPencilMark,
+                        onChange: this.handleChange.bind(this)
+                    })
+                ),
+                React.createElement(
+                    "div",
+                    { className: "update" },
+                    React.createElement(
+                        "button",
+                        { onClick: this.handleSolve.bind(this) },
+                        " Solve "
+                    )
+                )
+            );
+        }
+    }]);
+
+    return Game;
+}(React.Component);
+
+var FileInput = function (_React$Component2) {
+    _inherits(FileInput, _React$Component2);
 
     function FileInput(props) {
         _classCallCheck(this, FileInput);
 
-        var _this = _possibleConstructorReturn(this, (FileInput.__proto__ || Object.getPrototypeOf(FileInput)).call(this, props));
+        var _this3 = _possibleConstructorReturn(this, (FileInput.__proto__ || Object.getPrototypeOf(FileInput)).call(this, props));
 
-        _this.handleSubmit = _this.handleSubmit.bind(_this);
-        _this.fileInput = React.createRef();
-        return _this;
+        _this3.handleSubmit = _this3.handleSubmit.bind(_this3);
+        _this3.fileInput = React.createRef();
+        return _this3;
     }
 
     _createClass(FileInput, [{
-        key: 'handleSubmit',
+        key: "handleSubmit",
         value: function handleSubmit(event) {
             event.preventDefault();
             var onUpload = this.props.onUpload;
@@ -54,22 +213,21 @@ var FileInput = function (_React$Component) {
             fr.readAsText(this.fileInput.current.files[0]);
         }
     }, {
-        key: 'render',
+        key: "render",
         value: function render() {
             return React.createElement(
-                'form',
+                "form",
                 { onSubmit: this.handleSubmit },
                 React.createElement(
-                    'label',
+                    "label",
                     null,
-                    'Upload file:',
-                    React.createElement('input', { type: 'file', ref: this.fileInput })
+                    "Upload file:",
+                    React.createElement("input", { type: "file", ref: this.fileInput })
                 ),
-                React.createElement('br', null),
                 React.createElement(
-                    'button',
-                    { type: 'submit' },
-                    'Submit'
+                    "button",
+                    { type: "submit" },
+                    "Submit"
                 )
             );
         }
@@ -78,110 +236,32 @@ var FileInput = function (_React$Component) {
     return FileInput;
 }(React.Component);
 
-var Mark = function (_React$Component2) {
-    _inherits(Mark, _React$Component2);
+var Setting = function (_React$Component3) {
+    _inherits(Setting, _React$Component3);
 
-    function Mark(props) {
-        _classCallCheck(this, Mark);
+    function Setting(props) {
+        _classCallCheck(this, Setting);
 
-        var _this2 = _possibleConstructorReturn(this, (Mark.__proto__ || Object.getPrototypeOf(Mark)).call(this, props));
-
-        _this2.state = {
-            isClear: false
-        };
-        return _this2;
+        return _possibleConstructorReturn(this, (Setting.__proto__ || Object.getPrototypeOf(Setting)).call(this, props));
     }
 
-    _createClass(Mark, [{
-        key: 'handleClick',
-        value: function handleClick() {
-            var isClear = this.state.isClear;
-            this.setState({
-                isClear: !isClear
-            });
-        }
-    }, {
-        key: 'render',
+    _createClass(Setting, [{
+        key: "render",
         value: function render() {
-            var value = "";
-            if (!this.state.isClear) {
-                value = this.props.value;
-            }
             return React.createElement(
-                'button',
-                { className: 'mark', onClick: this.handleClick.bind(this) },
-                value
+                "form",
+                null,
+                React.createElement("input", { type: "checkbox", id: "showMark", onChange: this.props.onChange }),
+                React.createElement(
+                    "label",
+                    null,
+                    " Show pencial marks "
+                )
             );
         }
     }]);
 
-    return Mark;
-}(React.Component);
-
-var Square = function (_React$Component3) {
-    _inherits(Square, _React$Component3);
-
-    function Square(props) {
-        _classCallCheck(this, Square);
-
-        return _possibleConstructorReturn(this, (Square.__proto__ || Object.getPrototypeOf(Square)).call(this, props));
-    }
-
-    _createClass(Square, [{
-        key: 'renderBlock',
-        value: function renderBlock() {
-            var numbers = Array(3).fill(0).map(function (e, i) {
-                return i;
-            });
-            return numbers.map(function (row) {
-                return React.createElement(
-                    'tr',
-                    { key: row },
-                    numbers.map(function (col) {
-                        var number = 3 * row + col;
-                        return React.createElement(
-                            'td',
-                            { key: col, className: 'in-block' },
-                            React.createElement(Mark, {
-                                value: (row * 3 + col + 1).toString()
-                            })
-                        );
-                    })
-                );
-            });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this4 = this;
-
-            if (this.props.value.length == 1) {
-                return React.createElement('input', { className: "square " + this.props.type, type: 'text', min: '1', max: '9',
-                    value: this.props.value[0],
-                    onChange: function onChange(event) {
-                        return _this4.props.onChange(_this4.props.row, _this4.props.col, Number(event.target.value));
-                    },
-                    onFocus: function onFocus() {
-                        return event.target.type = "number";
-                    },
-                    onBlur: function onBlur() {
-                        return event.target.type = "text";
-                    } });
-            } else {
-                return React.createElement(
-                    'table',
-                    { className: 'square' },
-                    React.createElement(
-                        'tbody',
-                        null,
-                        this.renderBlock()
-                    )
-                );
-            }
-        }
-    }]);
-
-    return Square;
+    return Setting;
 }(React.Component);
 
 var Board = function (_React$Component4) {
@@ -194,11 +274,10 @@ var Board = function (_React$Component4) {
     }
 
     _createClass(Board, [{
-        key: 'renderTable',
+        key: "renderTable",
         value: function renderTable() {
             var _this6 = this;
 
-            console.log(this.props.config);
             var numbers = Array(9).fill(0).map(function (e, i) {
                 return i;
             });
@@ -207,7 +286,7 @@ var Board = function (_React$Component4) {
                 w3 = "5px";
             return numbers.map(function (row) {
                 return React.createElement(
-                    'tr',
+                    "tr",
                     { key: row },
                     numbers.map(function (col) {
                         var borderArr = [w1, w1, w1, w1]; // top, right, bottom, left
@@ -218,13 +297,14 @@ var Board = function (_React$Component4) {
                         if (col == 3 || col == 6) borderArr[3] = w2;
                         if (col == 8) borderArr[1] = w3;
                         return React.createElement(
-                            'td',
+                            "td",
                             { key: col, style: { borderWidth: borderArr.join(" ") } },
                             React.createElement(Square, {
                                 row: row,
                                 col: col,
                                 value: _this6.props.config[row][col],
                                 type: _this6.props.typeConfig[row][col],
+                                showPencilMark: _this6.props.showPencilMark,
                                 onChange: _this6.props.onChange
                             })
                         );
@@ -233,16 +313,16 @@ var Board = function (_React$Component4) {
             });
         }
     }, {
-        key: 'render',
+        key: "render",
         value: function render() {
             return React.createElement(
-                'div',
+                "div",
                 null,
                 React.createElement(
-                    'table',
+                    "table",
                     null,
                     React.createElement(
-                        'tbody',
+                        "tbody",
                         null,
                         this.renderTable()
                     )
@@ -254,167 +334,128 @@ var Board = function (_React$Component4) {
     return Board;
 }(React.Component);
 
-var Puzzle = function (_React$Component5) {
-    _inherits(Puzzle, _React$Component5);
+var Square = function (_React$Component5) {
+    _inherits(Square, _React$Component5);
 
-    function Puzzle(props) {
-        _classCallCheck(this, Puzzle);
+    function Square(props) {
+        _classCallCheck(this, Square);
 
-        return _possibleConstructorReturn(this, (Puzzle.__proto__ || Object.getPrototypeOf(Puzzle)).call(this, props));
+        return _possibleConstructorReturn(this, (Square.__proto__ || Object.getPrototypeOf(Square)).call(this, props));
     }
 
-    _createClass(Puzzle, [{
-        key: 'handleChange',
-        value: function handleChange(i, j, number) {
-            // const history = this.state.history.slice(0, this.state.stepNumber + 1);
-            // const current = history[history.length - 1];
-            // const config = this.state.config.slice();
-            // const typeConfig = this.state.typeConfig.slice();
-            // config[i][j] = [number];
-            // typeConfig[i][j] = "given";
-            // this.setState({
-            //     config: config,
-            //     typeConfig: typeConfig,
-            // });
-        }
-    }, {
-        key: 'handleSolve',
-        value: function handleSolve() {
-            // this.setState({
-            //     config: calculate(this.state.config)
-            // });
+    _createClass(Square, [{
+        key: "renderBlock",
+        value: function renderBlock() {
+            var _this8 = this;
 
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            return React.createElement(
-                'div',
-                null,
-                React.createElement(
-                    'div',
-                    { className: 'board' },
-                    React.createElement(Board, {
-                        config: this.props.config,
-                        typeConfig: this.props.typeConfig,
-                        onChange: this.handleChange.bind(this)
+            var numbers = Array(3).fill(0).map(function (e, i) {
+                return i;
+            });
+            return numbers.map(function (row) {
+                return React.createElement(
+                    "tr",
+                    { key: row },
+                    numbers.map(function (col) {
+                        var numberStr = "";
+                        var number = 3 * row + col + 1;
+                        if (_this8.props.value.includes(number)) {
+                            numberStr = number.toString();
+                        }
+                        return React.createElement(
+                            "td",
+                            { key: col, className: "in-block" },
+                            React.createElement(Mark, {
+                                value: numberStr
+                            })
+                        );
                     })
-                ),
-                React.createElement(
-                    'div',
-                    null,
-                    React.createElement(
-                        'button',
-                        { onClick: this.handleSolve.bind(this) },
-                        ' Solve '
-                    )
-                )
-            );
-        }
-    }]);
-
-    return Puzzle;
-}(React.Component);
-
-var Game = function (_React$Component6) {
-    _inherits(Game, _React$Component6);
-
-    function Game(props) {
-        _classCallCheck(this, Game);
-
-        var _this8 = _possibleConstructorReturn(this, (Game.__proto__ || Object.getPrototypeOf(Game)).call(this, props));
-
-        _this8.state = {
-            library: [],
-            config: Array(9).fill(0).map(function (row) {
-                return new Array(9).fill(0).map(function (square) {
-                    return Array(9).fill(0).map(function (value, i) {
-                        return i + 1;
-                    });
-                });
-            }),
-            typeConfig: Array(9).fill(0).map(function (row) {
-                return new Array(9).fill("unplaced");
-            })
-        };
-        return _this8;
-    }
-
-    _createClass(Game, [{
-        key: 'handleUpload',
-        value: function handleUpload(lib) {
-            var typeConfig = this.state.typeConfig.slice();
-            var config = lib[0];
-            config.forEach(function (row, i) {
-                return row.forEach(function (square, j) {
-                    if (square.length == 1) typeConfig[i][j] = "given";
-                });
+                );
             });
-            this.setState({
-                library: lib,
-                config: config,
-                typeConfig: typeConfig
-            });
-            // console.log(this.state.config);
-            // console.log(this.state.typeConfig);
         }
     }, {
-        key: 'handlePlay',
-        value: function handlePlay(mode) {
-            if (mode == "test") {
-                this.state.library.forEach(function (puzzle) {});
-            } else if (mode == "solve") {} else {
-                console.log("Mode should be either test or solve!");
+        key: "render",
+        value: function render() {
+            var _this9 = this;
+
+            if (this.props.value.length == 1) {
+                return React.createElement("input", { className: "square " + this.props.type, type: "text", min: "1", max: "9",
+                    value: this.props.value[0],
+                    onChange: function onChange(event) {
+                        return _this9.props.onChange(_this9.props.row, _this9.props.col, Number(event.target.value));
+                    },
+                    onFocus: function onFocus() {
+                        return event.target.type = "number";
+                    },
+                    onBlur: function onBlur() {
+                        return event.target.type = "text";
+                    } });
+            } else if (this.props.showPencilMark) {
+                return React.createElement(
+                    "table",
+                    { className: "square" },
+                    React.createElement(
+                        "tbody",
+                        null,
+                        this.renderBlock()
+                    )
+                );
+            } else {
+                return React.createElement("input", { className: "square", type: "text", min: "1", max: "9", value: "",
+                    onChange: function onChange(event) {
+                        return _this9.props.onChange(_this9.props.row, _this9.props.col, Number(event.target.value));
+                    },
+                    onFocus: function onFocus() {
+                        return event.target.type = "number";
+                    },
+                    onBlur: function onBlur() {
+                        return event.target.type = "text";
+                    }
+                });
             }
         }
+    }]);
+
+    return Square;
+}(React.Component);
+
+var Mark = function (_React$Component6) {
+    _inherits(Mark, _React$Component6);
+
+    function Mark(props) {
+        _classCallCheck(this, Mark);
+
+        var _this10 = _possibleConstructorReturn(this, (Mark.__proto__ || Object.getPrototypeOf(Mark)).call(this, props));
+
+        _this10.state = {
+            isClear: false
+        };
+        return _this10;
+    }
+
+    _createClass(Mark, [{
+        key: "handleClick",
+        value: function handleClick() {
+            var isClear = this.state.isClear;
+            this.setState({
+                isClear: !isClear
+            });
+        }
     }, {
-        key: 'render',
+        key: "render",
         value: function render() {
+            var value = "";
+            if (!this.state.isClear) {
+                value = this.props.value;
+            }
             return React.createElement(
-                'div',
-                { className: 'game' },
-                React.createElement(
-                    'div',
-                    { className: 'info' },
-                    React.createElement(
-                        'ol',
-                        null,
-                        React.createElement(
-                            'li',
-                            { key: 'enter' },
-                            React.createElement(
-                                'p',
-                                null,
-                                'Enter the puzzle in the grid above.'
-                            )
-                        ),
-                        React.createElement(
-                            'li',
-                            { key: 'solve' },
-                            React.createElement(
-                                'p',
-                                null,
-                                'Click "Solve" to get the answer.'
-                            )
-                        )
-                    ),
-                    React.createElement(FileInput, {
-                        onUpload: this.handleUpload.bind(this)
-                    })
-                ),
-                React.createElement(
-                    'div',
-                    { className: 'puzzle' },
-                    React.createElement(Puzzle, {
-                        config: this.state.config,
-                        typeConfig: this.state.typeConfig
-                    })
-                )
+                "button",
+                { className: "mark", onClick: this.handleClick.bind(this) },
+                value
             );
         }
     }]);
 
-    return Game;
+    return Mark;
 }(React.Component);
 
 // ========================================
