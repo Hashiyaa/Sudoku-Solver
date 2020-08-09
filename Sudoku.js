@@ -54,19 +54,24 @@ var Game = function (_React$Component) {
     }, {
         key: "handleUpload",
         value: function handleUpload(lib) {
-            var config = lib[0].slice();
+            var config = lib[1].slice();
             var typeConfig = this.state.typeConfig.slice();
             config.forEach(function (row, i) {
                 return row.forEach(function (grid, j) {
                     if (grid.length == 1) typeConfig[i][j] = "given";
                 });
             });
-            this.updateHisotry(config, typeConfig);
+            if (this.state.configCur >= 0) {
+                alert("Be careful that uploading new puzzles will overwrite the editing history of the current puzzle!");
+            }
             this.setState({
                 library: lib,
                 config: config,
-                typeConfig: typeConfig
+                typeConfig: typeConfig,
+                configCur: -1
             });
+
+            this.updateHisotry(config, typeConfig);
             // console.log(this.state.config);
             // console.log(this.state.typeConfig);
         }
@@ -263,6 +268,15 @@ var Game = function (_React$Component) {
                         "button",
                         { disabled: this.state.configCur < 0,
                             onClick: function onClick() {
+                                return _this3.handleSolve("test");
+                            } },
+                        " Test "
+                    ),
+                    React.createElement("br", null),
+                    React.createElement(
+                        "button",
+                        { disabled: this.state.configCur < 0,
+                            onClick: function onClick() {
                                 return _this3.handleSolve("naked_single");
                             } },
                         " Naked Single "
@@ -271,9 +285,58 @@ var Game = function (_React$Component) {
                         "button",
                         { disabled: this.state.configCur < 0,
                             onClick: function onClick() {
+                                return _this3.handleSolve("naked_pair");
+                            } },
+                        " Naked Pair "
+                    ),
+                    React.createElement(
+                        "button",
+                        { disabled: this.state.configCur < 0,
+                            onClick: function onClick() {
+                                return _this3.handleSolve("naked_triple");
+                            } },
+                        " Naked Triple "
+                    ),
+                    React.createElement(
+                        "button",
+                        { disabled: this.state.configCur < 0,
+                            onClick: function onClick() {
+                                return _this3.handleSolve("naked_quadruple");
+                            } },
+                        " Naked Quadruple "
+                    ),
+                    React.createElement("br", null),
+                    React.createElement(
+                        "button",
+                        { disabled: this.state.configCur < 0,
+                            onClick: function onClick() {
                                 return _this3.handleSolve("hidden_single");
                             } },
                         " Hidden Single "
+                    ),
+                    React.createElement(
+                        "button",
+                        { disabled: this.state.configCur < 0,
+                            onClick: function onClick() {
+                                return _this3.handleSolve("hidden_pair");
+                            } },
+                        " Hidden Pair "
+                    ),
+                    React.createElement(
+                        "button",
+                        { disabled: this.state.configCur < 0,
+                            onClick: function onClick() {
+                                return _this3.handleSolve("hidden_triple");
+                            } },
+                        " Hidden Triple "
+                    ),
+                    React.createElement(
+                        "button",
+                        { disabled: this.state.configCur < 0,
+                            onClick: function onClick() {
+                                return _this3.handleSolve("hidden_quadruple");
+                            } },
+                        " Hidden Quadruple "
                     )
                 )
             );

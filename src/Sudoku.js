@@ -30,7 +30,7 @@ class Game extends React.Component {
     }
 
     handleUpload(lib) {
-        let config = lib[0].slice();
+        let config = lib[1].slice();
         let typeConfig = this.state.typeConfig.slice();
         config.forEach((row, i) => 
             row.forEach((grid, j) => {
@@ -38,12 +38,17 @@ class Game extends React.Component {
                     typeConfig[i][j] = "given"
             })
         );
-        this.updateHisotry(config, typeConfig);
+        if (this.state.configCur >= 0) {
+            alert("Be careful that uploading new puzzles will overwrite the editing history of the current puzzle!")
+        }
         this.setState({
             library: lib,
             config: config,
             typeConfig: typeConfig,
+            configCur: -1,
         });
+        
+        this.updateHisotry(config, typeConfig);
         // console.log(this.state.config);
         // console.log(this.state.typeConfig);
     }
@@ -193,9 +198,23 @@ class Game extends React.Component {
                     <button disabled={this.state.configCur < 0 || this.state.configCur >= this.state.history.length - 1} 
                         onClick={this.handleRedo.bind(this)}> Redo </button><br/>
                     <button disabled={this.state.configCur < 0} 
+                        onClick={() => this.handleSolve("test")}> Test </button><br/>
+                    <button disabled={this.state.configCur < 0} 
                         onClick={() => this.handleSolve("naked_single")}> Naked Single </button>
                     <button disabled={this.state.configCur < 0} 
+                        onClick={() => this.handleSolve("naked_pair")}> Naked Pair </button>
+                    <button disabled={this.state.configCur < 0} 
+                        onClick={() => this.handleSolve("naked_triple")}> Naked Triple </button>
+                    <button disabled={this.state.configCur < 0} 
+                        onClick={() => this.handleSolve("naked_quadruple")}> Naked Quadruple </button><br/>
+                    <button disabled={this.state.configCur < 0} 
                         onClick={() => this.handleSolve("hidden_single")}> Hidden Single </button>
+                    <button disabled={this.state.configCur < 0} 
+                        onClick={() => this.handleSolve("hidden_pair")}> Hidden Pair </button>
+                    <button disabled={this.state.configCur < 0} 
+                        onClick={() => this.handleSolve("hidden_triple")}> Hidden Triple </button>
+                    <button disabled={this.state.configCur < 0} 
+                        onClick={() => this.handleSolve("hidden_quadruple")}> Hidden Quadruple </button>
                 </div>
             </div>
         );
