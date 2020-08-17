@@ -2,23 +2,23 @@
 
 const DIM = 3;
 
-function calculate(config, algo) {
+export default function calculate(config, algo) {
     let s = new Solver(config);
-    if (algo == "naked_single") {
+    if (algo === "naked_single") {
         s.ac3();
-    } else if (algo == "naked_pair") {
+    } else if (algo === "naked_pair") {
         s.nakedPairProp();
-    } else if (algo == "naked_triple") {
+    } else if (algo === "naked_triple") {
         s.nakedTripleProp();
-    } else if (algo == "naked_quadruple") {
+    } else if (algo === "naked_quadruple") {
         s.nakedQuadrupleProp();
-    } else if (algo == "hidden_single") {
+    } else if (algo === "hidden_single") {
         s.hiddenSingleProp();
-    } else if (algo == "hidden_pair") {
+    } else if (algo === "hidden_pair") {
         s.hiddenPairProp();
-    } else if (algo == "hidden_triple") {
+    } else if (algo === "hidden_triple") {
         s.hiddenTripleProp();
-    } else if (algo == "hidden_quadruple") {
+    } else if (algo === "hidden_quadruple") {
         s.hiddenQuadrupleProp();
     } else {
         let iter = 1;
@@ -32,14 +32,10 @@ function calculate(config, algo) {
     return s.config.slice();
 }
 
-function saveToLib() {
-
-}
-
 function containPos(arr, pos) {
     let contained = false;
     for (let i = 0; i < arr.length; i++) {
-        if (arr[i][0] == pos[0] && arr[i][1] == pos[1]) {
+        if (arr[i][0] === pos[0] && arr[i][1] === pos[1]) {
             contained = true;
             break;
         }
@@ -47,14 +43,15 @@ function containPos(arr, pos) {
     return contained;
 }
 
-function getPosFromIndex(i , j, type) {
+function getPosFromIndex(i, j, type) {
     let pos = [i, j];
-    if (type == 1) {
+    if (type === 1) {
         pos = [j, i];
-    } 
-    if (type == 2) {
-        pos = [Math.floor(i / DIM) * DIM + Math.floor(j / DIM), 
-            Math.floor(i % DIM) * DIM + Math.floor(j % DIM)];
+    }
+    if (type === 2) {
+        pos = [Math.floor(i / DIM) * DIM + Math.floor(j / DIM),
+            Math.floor(i % DIM) * DIM + Math.floor(j % DIM)
+        ];
     }
     return pos;
 }
@@ -77,11 +74,11 @@ class Solver {
         let neighbors = [];
         for (let i = 0; i < DIM * DIM; i++) {
             for (let j = 0; j < DIM * DIM; j++) {
-                let row = i == pos[0] && j != pos[1];
-                let col = i != pos[0] && j == pos[1];
-                let block = (Math.floor(i / DIM) == Math.floor(pos[0] / DIM)) &&
-                    (Math.floor(j / DIM) == Math.floor(pos[1] / DIM)) &&
-                    !(i == pos[0] && j == pos[1]);
+                let row = i === pos[0] && j !== pos[1];
+                let col = i !== pos[0] && j === pos[1];
+                let block = (Math.floor(i / DIM) === Math.floor(pos[0] / DIM)) &&
+                    (Math.floor(j / DIM) === Math.floor(pos[1] / DIM)) &&
+                    !(i === pos[0] && j === pos[1]);
                 if (row || col || block) neighbors.push([i, j]);
             }
         }
@@ -99,7 +96,7 @@ class Solver {
         // console.log(q.peek());
 
         let revised = false;
-        while (q.length != 0) {
+        while (q.length !== 0) {
             let arc = q.pop();
             let updated = false;
             let di = this.config[arc[0][0]][arc[0][1]];
@@ -109,7 +106,7 @@ class Solver {
                 let ac = false;
                 for (let j = 0; j < dj.length; j++) {
                     let y = dj[j];
-                    if (y != x) {
+                    if (y !== x) {
                         ac = true;
                         break;
                     }
@@ -122,9 +119,9 @@ class Solver {
             }
 
             if (updated) {
-                if (di.filter(e => e != 0).length == 0) return;
+                if (di.filter(e => e !== 0).length === 0) return;
                 this.getNeighbors(arc[0]).forEach(n => {
-                    if (n[0] != arc[1][0] || n[1] != arc[1][1])
+                    if (n[0] !== arc[1][0] || n[1] !== arc[1][1])
                         q.push([n, arc[0]]);
                 });
             }
@@ -139,10 +136,10 @@ class Solver {
             for (let type = 0; type < 3; type++) {
                 for (let j = 0; j < this.config.length - 1; j++) {
                     let pos1 = getPosFromIndex(i, j, type);
-                    if (this.config[pos1[0]][pos1[1]].length != 2) continue;
+                    if (this.config[pos1[0]][pos1[1]].length !== 2) continue;
                     for (let k = j + 1; k < this.config.length; k++) {
                         let pos2 = getPosFromIndex(i, k, type);
-                        if (this.config[pos2[0]][pos2[1]].length != 2) continue;
+                        if (this.config[pos2[0]][pos2[1]].length !== 2) continue;
                         let numbers = [];
                         this.config[pos1[0]][pos1[1]].forEach(value => {
                             if (!numbers.includes(value)) numbers.push(value);
@@ -150,20 +147,19 @@ class Solver {
                         this.config[pos2[0]][pos2[1]].forEach(value => {
                             if (!numbers.includes(value)) numbers.push(value);
                         });
-                        if (numbers.length == 2) {
+                        if (numbers.length === 2) {
                             numbers.forEach(num => {
-                                if (type == 0) {
+                                if (type === 0) {
                                     for (let idx = 0; idx < DIM * DIM; idx++) {
-                                        if (idx != pos1[1] && idx != pos2[1] && 
-                                            this.config[pos1[0]][idx].includes(num)) {
+                                        if (idx !== pos1[1] && idx !== pos2[1] && this.config[pos1[0]][idx].includes(num)) {
                                             revised = true;
                                             let index = this.config[pos1[0]][idx].indexOf(num);
                                             this.config[pos1[0]][idx].splice(index, 1);
                                         }
                                     }
-                                } else if (type == 1) {
+                                } else if (type === 1) {
                                     for (let idx = 0; idx < DIM * DIM; idx++) {
-                                        if (idx != pos1[0] && idx != pos2[0] && 
+                                        if (idx !== pos1[0] && idx !== pos2[0] &&
                                             this.config[idx][pos1[1]].includes(num)) {
                                             revised = true;
                                             let index = this.config[idx][pos1[1]].indexOf(num);
@@ -174,8 +170,8 @@ class Solver {
                                     for (let idx = 0; idx < DIM * DIM; idx++) {
                                         let r = Math.floor(pos1[0] / DIM) * DIM + Math.floor(idx / DIM);
                                         let c = Math.floor(pos1[1] / DIM) * DIM + idx % DIM;
-                                        if (!(r == pos1[0] && c == pos1[1]) && 
-                                            !(r == pos2[0] && c == pos2[1]) && 
+                                        if (!(r === pos1[0] && c === pos1[1]) &&
+                                            !(r === pos2[0] && c === pos2[1]) &&
                                             this.config[r][c].includes(num)) {
                                             revised = true;
                                             let index = this.config[r][c].indexOf(num);
@@ -199,15 +195,15 @@ class Solver {
             for (let type = 0; type < 3; type++) {
                 for (let j = 0; j < this.config.length - 2; j++) {
                     let pos1 = getPosFromIndex(i, j, type);
-                    if (this.config[pos1[0]][pos1[1]].length == 1 || 
+                    if (this.config[pos1[0]][pos1[1]].length === 1 ||
                         this.config[pos1[0]][pos1[1]].length > 3) continue;
                     for (let k = j + 1; k < this.config.length - 1; k++) {
                         let pos2 = getPosFromIndex(i, k, type);
-                        if (this.config[pos2[0]][pos2[1]].length == 1 ||
+                        if (this.config[pos2[0]][pos2[1]].length === 1 ||
                             this.config[pos2[0]][pos2[1]].length > 3) continue;
                         for (let l = k + 1; l < this.config.length; l++) {
                             let pos3 = getPosFromIndex(i, l, type);
-                            if (this.config[pos3[0]][pos3[1]].length == 1 || 
+                            if (this.config[pos3[0]][pos3[1]].length === 1 ||
                                 this.config[pos3[0]][pos3[1]].length > 3) continue;
                             let numbers = [];
                             this.config[pos1[0]][pos1[1]].forEach(value => {
@@ -219,21 +215,20 @@ class Solver {
                             this.config[pos3[0]][pos3[1]].forEach(value => {
                                 if (!numbers.includes(value)) numbers.push(value);
                             });
-                            if (numbers.length == 3) {
+                            if (numbers.length === 3) {
                                 numbers.forEach(num => {
-                                    if (type == 0) {
+                                    if (type === 0) {
                                         for (let idx = 0; idx < DIM * DIM; idx++) {
-                                            if (idx != pos1[1] && idx != pos2[1] && idx != pos3[1] && 
-                                                this.config[pos1[0]][idx].includes(num)) {
+                                            if (idx !== pos1[1] && idx !== pos2[1] && idx !== pos3[1] && this.config[pos1[0]][idx].includes(num)) {
                                                 revised = true;
                                                 let index = this.config[pos1[0]][idx].indexOf(num);
                                                 this.config[pos1[0]][idx].splice(index, 1);
                                             }
                                         }
                                     }
-                                    if (type == 1) {
+                                    if (type === 1) {
                                         for (let idx = 0; idx < DIM * DIM; idx++) {
-                                            if (idx != pos1[0] && idx != pos2[0] && idx != pos3[0] && 
+                                            if (idx !== pos1[0] && idx !== pos2[0] && idx !== pos3[0] &&
                                                 this.config[idx][pos1[1]].includes(num)) {
                                                 revised = true;
                                                 let index = this.config[idx][pos1[1]].indexOf(num);
@@ -241,13 +236,13 @@ class Solver {
                                             }
                                         }
                                     }
-                                    if (type == 2) {
+                                    if (type === 2) {
                                         for (let idx = 0; idx < DIM * DIM; idx++) {
                                             let r = Math.floor(pos1[0] / DIM) * DIM + Math.floor(idx / DIM);
                                             let c = Math.floor(pos1[1] / DIM) * DIM + idx % DIM;
-                                            if (!(r == pos1[0] && c == pos1[1]) && 
-                                                !(r == pos2[0] && c == pos2[1]) && 
-                                                !(r == pos3[0] && c == pos3[1]) && 
+                                            if (!(r === pos1[0] && c === pos1[1]) &&
+                                                !(r === pos2[0] && c === pos2[1]) &&
+                                                !(r === pos3[0] && c === pos3[1]) &&
                                                 this.config[r][c].includes(num)) {
                                                 revised = true;
                                                 let index = this.config[r][c].indexOf(num);
@@ -272,19 +267,19 @@ class Solver {
             for (let type = 0; type < 3; type++) {
                 for (let j = 0; j < this.config.length - 3; j++) {
                     let pos1 = getPosFromIndex(i, j, type);
-                    if (this.config[pos1[0]][pos1[1]].length == 1 || 
+                    if (this.config[pos1[0]][pos1[1]].length === 1 ||
                         this.config[pos1[0]][pos1[1]].length > 4) continue;
                     for (let k = j + 1; k < this.config.length - 2; k++) {
                         let pos2 = getPosFromIndex(i, k, type);
-                        if (this.config[pos2[0]][pos2[1]].length == 1 ||
+                        if (this.config[pos2[0]][pos2[1]].length === 1 ||
                             this.config[pos2[0]][pos2[1]].length > 4) continue;
                         for (let l = k + 1; l < this.config.length - 1; l++) {
                             let pos3 = getPosFromIndex(i, l, type);
-                            if (this.config[pos3[0]][pos3[1]].length == 1 || 
+                            if (this.config[pos3[0]][pos3[1]].length === 1 ||
                                 this.config[pos3[0]][pos3[1]].length > 4) continue;
                             for (let m = l + 1; m < this.config.length; m++) {
                                 let pos4 = getPosFromIndex(i, m, type);
-                                if (this.config[pos4[0]][pos4[1]].length == 1 || 
+                                if (this.config[pos4[0]][pos4[1]].length === 1 ||
                                     this.config[pos4[0]][pos4[1]].length > 4) continue;
                                 let numbers = [];
                                 this.config[pos1[0]][pos1[1]].forEach(value => {
@@ -299,12 +294,12 @@ class Solver {
                                 this.config[pos4[0]][pos4[1]].forEach(value => {
                                     if (!numbers.includes(value)) numbers.push(value);
                                 });
-                                if (numbers.length == 4) {
+                                if (numbers.length === 4) {
                                     numbers.forEach(num => {
-                                        if (type == 0) {
+                                        if (type === 0) {
                                             for (let idx = 0; idx < DIM * DIM; idx++) {
-                                                if (idx != pos1[1] && idx != pos2[1] && 
-                                                    idx != pos3[1] && idx != pos4[1] && 
+                                                if (idx !== pos1[1] && idx !== pos2[1] &&
+                                                    idx !== pos3[1] && idx !== pos4[1] &&
                                                     this.config[pos1[0]][idx].includes(num)) {
                                                     revised = true;
                                                     let index = this.config[pos1[0]][idx].indexOf(num);
@@ -312,10 +307,10 @@ class Solver {
                                                 }
                                             }
                                         }
-                                        if (type == 1) {
+                                        if (type === 1) {
                                             for (let idx = 0; idx < DIM * DIM; idx++) {
-                                                if (idx != pos1[0] && idx != pos2[0] && 
-                                                    idx != pos3[0] && idx != pos4[0] && 
+                                                if (idx !== pos1[0] && idx !== pos2[0] &&
+                                                    idx !== pos3[0] && idx !== pos4[0] &&
                                                     this.config[idx][pos1[1]].includes(num)) {
                                                     revised = true;
                                                     let index = this.config[idx][pos1[1]].indexOf(num);
@@ -323,14 +318,14 @@ class Solver {
                                                 }
                                             }
                                         }
-                                        if (type == 2) {
+                                        if (type === 2) {
                                             for (let idx = 0; idx < DIM * DIM; idx++) {
                                                 let r = Math.floor(pos1[0] / DIM) * DIM + Math.floor(idx / DIM);
                                                 let c = Math.floor(pos1[1] / DIM) * DIM + idx % DIM;
-                                                if (!(r == pos1[0] && c == pos1[1]) && 
-                                                    !(r == pos2[0] && c == pos2[1]) && 
-                                                    !(r == pos3[0] && c == pos3[1]) && 
-                                                    !(r == pos4[0] && c == pos4[1]) && 
+                                                if (!(r === pos1[0] && c === pos1[1]) &&
+                                                    !(r === pos2[0] && c === pos2[1]) &&
+                                                    !(r === pos3[0] && c === pos3[1]) &&
+                                                    !(r === pos4[0] && c === pos4[1]) &&
                                                     this.config[r][c].includes(num)) {
                                                     revised = true;
                                                     let index = this.config[r][c].indexOf(num);
@@ -348,7 +343,7 @@ class Solver {
         }
         return revised;
     }
-    
+
     countPosForEachNum(i) {
         let counters = Array(3).fill(0).map(e => Array(DIM * DIM).fill(0).map(v => []));
         for (let j = 0; j < DIM * DIM; j++) {
@@ -371,10 +366,10 @@ class Solver {
             // a house (type) is either a row (0), a column (1), or a block (2)
             counters.forEach((house, type) => {
                 house.forEach((value, index) => {
-                    if (value.length == 1) {
+                    if (value.length === 1) {
                         this.config[value[0][0]][value[0][1]] = [index + 1];
                         revised = true;
-                    } 
+                    }
                 });
             });
         }
@@ -388,9 +383,9 @@ class Solver {
             let counters = this.countPosForEachNum(i);
             counters.forEach((house) => {
                 for (let j = 0; j < house.length - 1; j++) {
-                    if (house[j].length == 1) continue;
+                    if (house[j].length === 1) continue;
                     for (let k = j + 1; k < house.length; k++) {
-                        if (house[k].length == 1) continue;
+                        if (house[k].length === 1) continue;
                         let grids = [];
                         house[j].forEach(pos => {
                             if (!containPos(grids, pos)) grids.push(pos);
@@ -398,11 +393,11 @@ class Solver {
                         house[k].forEach(pos => {
                             if (!containPos(grids, pos)) grids.push(pos);
                         });
-                        if (grids.length == 2) {
+                        if (grids.length === 2) {
                             grids.forEach(grid => {
                                 this.config[grid[0]][grid[1]] =
-                                    this.config[grid[0]][grid[1]].filter(v => 
-                                        v == j + 1 || v == k + 1
+                                    this.config[grid[0]][grid[1]].filter(v =>
+                                        v === j + 1 || v === k + 1
                                     );
                             });
                             revised = true;
@@ -421,11 +416,11 @@ class Solver {
             let counters = this.countPosForEachNum(i);
             counters.forEach((house) => {
                 for (let j = 0; j < house.length - 2; j++) {
-                    if (house[j].length == 1) continue;
+                    if (house[j].length === 1) continue;
                     for (let k = j + 1; k < house.length - 1; k++) {
-                        if (house[k].length == 1) continue;
+                        if (house[k].length === 1) continue;
                         for (let l = k + 1; l < house.length; l++) {
-                            if (house[l].length == 1) continue;
+                            if (house[l].length === 1) continue;
                             let grids = [];
                             house[j].forEach(pos => {
                                 if (!containPos(grids, pos)) grids.push(pos);
@@ -436,11 +431,11 @@ class Solver {
                             house[l].forEach(pos => {
                                 if (!containPos(grids, pos)) grids.push(pos);
                             });
-                            if (grids.length == 3) {
+                            if (grids.length === 3) {
                                 grids.forEach(grid => {
-                                    this.config[grid[0]][grid[1]] = 
-                                        this.config[grid[0]][grid[1]].filter(v => 
-                                            v == j + 1 || v == k + 1 || v == l + 1
+                                    this.config[grid[0]][grid[1]] =
+                                        this.config[grid[0]][grid[1]].filter(v =>
+                                            v === j + 1 || v === k + 1 || v === l + 1
                                         );
                                 });
                                 revised = true;
@@ -460,13 +455,13 @@ class Solver {
             let counters = this.countPosForEachNum(i);
             counters.forEach((house) => {
                 for (let j = 0; j < house.length - 3; j++) {
-                    if (house[j].length == 1) continue;
+                    if (house[j].length === 1) continue;
                     for (let k = j + 1; k < house.length - 2; k++) {
-                        if (house[k].length == 1) continue;
+                        if (house[k].length === 1) continue;
                         for (let l = k + 1; l < house.length - 1; l++) {
-                            if (house[l].length == 1) continue;
+                            if (house[l].length === 1) continue;
                             for (let m = l + 1; m < house.length; m++) {
-                                if (house[m].length == 1) continue;
+                                if (house[m].length === 1) continue;
                                 let grids = [];
                                 house[j].forEach(pos => {
                                     if (!containPos(grids, pos)) grids.push(pos);
@@ -480,11 +475,11 @@ class Solver {
                                 house[m].forEach(pos => {
                                     if (!containPos(grids, pos)) grids.push(pos);
                                 });
-                                if (grids.length == 4) {
+                                if (grids.length === 4) {
                                     grids.forEach(grid => {
-                                        this.config[grid[0]][grid[1]] = 
-                                            this.config[grid[0]][grid[1]].filter(v => 
-                                                v == j + 1 || v == k + 1 || v == l + 1 || v == m + 1 
+                                        this.config[grid[0]][grid[1]] =
+                                            this.config[grid[0]][grid[1]].filter(v =>
+                                                v === j + 1 || v === k + 1 || v === l + 1 || v === m + 1
                                             );
                                     });
                                     revised = true;
@@ -501,5 +496,5 @@ class Solver {
     omission() {
 
     }
-    
+
 }

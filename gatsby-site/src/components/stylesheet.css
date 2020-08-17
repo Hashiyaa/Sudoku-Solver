@@ -58,11 +58,11 @@ input.grid {
   
 .game {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
 }
   
-.info {
+.library {
     margin-bottom: 20px;
 }
 
