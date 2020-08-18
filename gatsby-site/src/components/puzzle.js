@@ -1,17 +1,16 @@
 import React, { useState } from "react"
-import calculate from "./solver"
+import calculate from "../algos/solver"
 import Board from "./board"
 import Library from "./library"
 
-const Game = () => {
+const Puzzle = (props) => {
     const [library, setLibrary] = useState([]);
     const [history, setHistory] = useState([]);
     const [configCur, setConfigCur] = useState(-1);
     const [config, setConfig] = useState(Array(9).fill(0).map(row => new Array(9).fill(0).map(grid =>  Array(9).fill(0).map((value, i) => i + 1))));
     const [typeConfig, setTypeConfig] = useState(Array(9).fill(0).map(row => new Array(9).fill("unplaced")));
     const [playerChanges, setPlayerChanges] = useState([]);
-    const [showPencilMark, setShowPencilMark] = useState(false);
-
+    
     const updateHisotry = (config_new, typeConfig_new) => {
         let history_slice = history.slice(0, configCur + 1);
         history_slice.push({
@@ -21,34 +20,45 @@ const Game = () => {
         setHistory(history_slice);
         setConfigCur(configCur + 1);
         
-        console.log(history);
-        console.log(configCur);
+        // console.log(history);
+        // console.log(configCur);
     }
 
     const handleUpload = (lib) => {
-        let config_in = lib[0].slice();
-        let typeConfig_slice = typeConfig.slice();
-        config_in.forEach((row, i) => 
-            row.forEach((grid, j) => {
-                if (grid.length === 1) 
-                    typeConfig_slice[i][j] = "given"
-            })
-        );
-        if (configCur >= 0) {
-            alert("Be careful that uploading new puzzles will overwrite the editing history of the current puzzle!")
-        }
+        // let config_in = lib[0].slice();
+        // let typeConfig_slice = Array(9).fill(0).map(row => new Array(9).fill("unplaced");
+        // config_in.forEach((row, i) => 
+        //     row.forEach((grid, j) => {
+        //         if (grid.length === 1) 
+        //             typeConfig_slice[i][j] = "given"
+        //     })
+        // );
+        // if (configCur >= 0) {
+        //     alert("Be careful that uploading new puzzles will overwrite the editing history of the current puzzle!")
+        // }
         setLibrary(lib);
-        setConfig(config_in);
-        setTypeConfig(typeConfig_slice);
-        setConfigCur(-1);
+        // setConfig(config_in);
+        // setTypeConfig(typeConfig_slice);
+        // setConfigCur(-1);
         
-        updateHisotry(config, typeConfig);
+        // updateHisotry(config, typeConfig);
         // console.log(config);
         // console.log(typeConfig);
     }
 
-    const handleShowPencilMark = () => {
-        setShowPencilMark(!showPencilMark);
+    const handleSeletPuzzle = (index) => {
+        let config_new = library[index].slice();
+        let typeConfig_new = Array(9).fill(0).map(row => new Array(9).fill("unplaced"));
+        config_new.forEach((row, i) => 
+            row.forEach((grid, j) => {
+                if (grid.length === 1) 
+                    typeConfig_new[i][j] = "given";
+            })
+        );
+        setConfig(config_new);
+        setTypeConfig(typeConfig_new);
+        setConfigCur(-1);
+        updateHisotry(config, typeConfig);
     }
 
     const handleChangePencilMark = (row, col, value, included) => {
@@ -111,30 +121,25 @@ const Game = () => {
                 }
             });
         });
-        this.updateHisotry(sol, typeConfig_slice);
+        updateHisotry(sol, typeConfig_slice);
         setConfig(sol);
         setTypeConfig(typeConfig_slice);
     }
 
     return (
-        <div className="game">
-            <div className="library">
-                <Library
-                    onUpload={() => handleUpload()}
-                />
-            </div>
-            <div className="puzzle">
-                <Board
-                    config={config}
-                    typeConfig={typeConfig}
-                    showPencilMark={showPencilMark}
-                    onPencilMarkChange={() => handleChangePencilMark()}
-                />
-                <Setting
-                    onChange={() => handleShowPencilMark()}
-                />
-            </div>
-            <div className="update">
+        <div className="puzzle">
+            <Library
+                size={library.length}
+                onUpload={lib => handleUpload(lib)}
+                onSelectPuzzle={index => handleSeletPuzzle(index)}
+            />
+            <Board
+                config={config}
+                typeConfig={typeConfig}
+                showPencilMark={props.showPencilMark}
+                onPencilMarkChange={(row, col, value, included) => handleChangePencilMark(row, col, value, included)}
+            />
+            <div className="hint">
                 <button disabled={configCur < 0} 
                     onClick={() => handleUpdate()}> Update </button>
                 <button disabled={configCur <= 0} 
@@ -164,13 +169,4 @@ const Game = () => {
     );
 }
 
-const Setting = (props) => {
-    return (
-        <form>
-            <input type="checkbox" id="showMark" onChange={props.onChange}/>
-            <label htmlFor="showMark"> Show pencial marks </label>
-        </form>
-    );
-}
-
-export default Game;
+export default Puzzle;

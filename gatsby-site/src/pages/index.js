@@ -1,11 +1,8 @@
 import React from "react"
-import Game from "../components/sudoku"
+import Game from "../components/game"
 
 export default function Home() {
     return (
-        <div>
-            <p>Hello Sodoku world!</p>
-            <Game/>
-        </div>
+        <Game/>
     );
 }
